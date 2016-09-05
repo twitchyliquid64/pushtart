@@ -6,6 +6,7 @@ import (
 	"pushtart/config"
 	"pushtart/constants"
 	"pushtart/logging"
+	"pushtart/sshserv"
 )
 
 func main() {
@@ -28,9 +29,10 @@ func main() {
 			if err != nil {
 				generateConfig()
 			}
+			sshserv.Init()
 
 		case "make-configuration":
-			fmt.Println("make-configuration")
+			generateConfig()
 		}
 	}
 }
