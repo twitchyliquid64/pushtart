@@ -1,0 +1,4 @@
+pkg/
+bin/
+build.sh
+config.json
