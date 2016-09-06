@@ -29,7 +29,11 @@ func main() {
 			if err != nil {
 				generateConfig()
 			}
-			sshserv.Init()
+
+			err = sshserv.Init()
+			if err != nil {
+				logging.Error("init-sshServ", err.Error())
+			}
 
 		case "make-configuration":
 			generateConfig()

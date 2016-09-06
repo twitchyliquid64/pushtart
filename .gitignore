@@ -2,5 +2,5 @@ pkg/
 bin/
 build.sh
 config.json
-pushtart
+./pushtart
 pushtart.exe

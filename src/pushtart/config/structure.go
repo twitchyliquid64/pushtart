@@ -14,7 +14,8 @@ type Config struct {
 	}
 
 	Ssh struct {
-		PubPEM  string
-		PrivPEM string
+		PubPEM   string
+		PrivPEM  string
+		Listener string
 	}
 }

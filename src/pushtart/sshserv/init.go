@@ -17,5 +17,5 @@ func initServConfig() (err error) {
 	}
 	gConfig.AddHostKey(private)
 
-	return nil
+	return startListener()
 }
