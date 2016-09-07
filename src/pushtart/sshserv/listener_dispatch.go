@@ -10,11 +10,11 @@ import (
 )
 
 func startListener() error {
-	if config.All().Ssh.Listener == "" {
+	if config.All().SSH.Listener == "" {
 		return errors.New("No listener specified in config")
 	}
 
-	listener, err := net.Listen("tcp", config.All().Ssh.Listener)
+	listener, err := net.Listen("tcp", config.All().SSH.Listener)
 	if err != nil {
 		return err
 	}

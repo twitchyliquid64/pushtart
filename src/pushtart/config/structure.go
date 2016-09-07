@@ -13,9 +13,16 @@ type Config struct {
 		Listener string //Address:port (address can be omitted) where the HTTPS listener will bind.
 	}
 
-	Ssh struct {
+	SSH struct {
 		PubPEM   string
 		PrivPEM  string
 		Listener string
+	}
+
+	Users map[string]struct {
+		Name             string
+		Password         string
+		AllowSSHPassword bool
+		SSHPubKey        string
 	}
 }

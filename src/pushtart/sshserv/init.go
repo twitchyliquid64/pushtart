@@ -8,10 +8,11 @@ import (
 
 func initServConfig() (err error) {
 	gConfig = &ssh.ServerConfig{
-		PasswordCallback: passwordCheck,
+		PasswordCallback:  passwordCheck,
+		PublicKeyCallback: publicKeyCheck,
 	}
 
-	private, err := ssh.ParsePrivateKey([]byte(config.All().Ssh.PrivPEM))
+	private, err := ssh.ParsePrivateKey([]byte(config.All().SSH.PrivPEM))
 	if err != nil {
 		return err
 	}

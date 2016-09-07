@@ -22,12 +22,12 @@ func Generate(path string) (err error) {
 		}
 	}
 
-	if gConfig.Ssh.PrivPEM == "" {
-		gConfig.Ssh.PubPEM, gConfig.Ssh.PrivPEM, err = MakeSSHKeyPair()
+	if gConfig.SSH.PrivPEM == "" {
+		gConfig.SSH.PubPEM, gConfig.SSH.PrivPEM, err = MakeSSHKeyPair()
 	}
 
-	if gConfig.Ssh.Listener == "" {
-		gConfig.Ssh.Listener = "0.0.0.0:2022"
+	if gConfig.SSH.Listener == "" {
+		gConfig.SSH.Listener = "0.0.0.0:2022"
 	}
 
 	return writeConfig()
