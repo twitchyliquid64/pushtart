@@ -72,6 +72,10 @@ func serviceSSHChannel(conn *ssh.ServerConn, channel ssh.Channel, requests <-cha
 		case "pty-req": //need this to get shell to work for some reason
 			req.Reply(true, nil)
 
+		case "exec":
+			req.Reply(true, nil)
+			go execCmd(conn, channel, req.Payload)
+
 		default:
 			req.Reply(false, nil) //err
 		}

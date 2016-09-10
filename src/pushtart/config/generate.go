@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"os"
 	"pushtart/constants"
 	"pushtart/logging"
 	"strconv"
@@ -30,13 +31,17 @@ func Generate(path string) (err error) {
 		gConfig.SSH.Listener = "0.0.0.0:2022"
 	}
 
+	if gConfig.DataPath == "" {
+		pwd, _ := os.Getwd()
+		gConfig.DataPath = pwd
+	}
+
 	return writeConfig()
 }
 
-func Flush(){
+func Flush() {
 	writeConfig()
 }
-
 
 // MakeSSHKeyPair make a pair of public and private keys for SSH access.
 // Public key is encoded in the format for inclusion in an OpenSSH authorized_keys file.
