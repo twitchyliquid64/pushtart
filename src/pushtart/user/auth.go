@@ -1,6 +1,11 @@
 package user
 
-import "pushtart/config"
+import (
+	"golang.org/x/crypto/bcrypt"
+  "pushtart/config"
+	"pushtart/logging"
+	"pushtart/util"
+)
 
 func GetUserPubkey(username string) string {
 	usrStruct, ok := config.All().Users[username]
@@ -20,8 +25,17 @@ func CheckUserPasswordSSH(username, password string) bool {
 		return false
 	}
 
-	if usrStruct.AllowSSHPassword && usrStruct.Password == password {
-		return true
+	if usrStruct.AllowSSHPassword {
+		err := util.ComparePassHash(usrStruct.Password, username, password)
+		if err == nil{
+			return true
+		}
+
+		if err != bcrypt.ErrMismatchedHashAndPassword {
+			logging.Error("sshpwd-auth", "Hash compare error: " + err.Error())
+		}
+	} else {
+		logging.Error("sshpwd-auth", "Password authentication attempted for user with AllowSSHPassword = false. (Have you run edit-user with '--allow-ssh-password yes'?)")
 	}
 	return false
 }

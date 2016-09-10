@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 	"pushtart/config"
 	"pushtart/constants"
 	"pushtart/logging"
 	"pushtart/sshserv"
 	"pushtart/user"
+	"pushtart/util"
 )
 
 func main() {
@@ -54,6 +56,29 @@ func makeUser(params map[string]string){
 	}
 
 	user.New(params["username"])
+	usr := user.Get(params["username"])
+	var exists bool
+
+	if _, exists = params["password"]; exists {
+		pw, err := util.HashPassword(params["username"], params["password"])
+		if err != nil {
+			logging.Error("make-user", "Error hashing password: " + err.Error())
+			return
+		}
+		usr.Password = pw
+	}
+
+	if _, exists = params["name"]; exists {
+		usr.Name = params["name"]
+	}
+
+	if _, exists = params["allow-ssh-password"]; exists {
+		if strings.ToUpper(params["allow-ssh-password"]) == "YES" {
+			usr.AllowSSHPassword = true
+		}
+	}
+
+	user.Save(params["username"], usr)
 }
 
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration

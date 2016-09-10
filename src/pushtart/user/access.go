@@ -14,12 +14,15 @@ func Exists(username string)bool{
   return ok
 }
 
-func New(username string){
+func Save(username string, usr config.User){
   if config.All().Users == nil{
     config.All().Users = map[string]config.User{}
   }
+  config.All().Users[username] = usr
+  config.Flush()
+}
 
-  config.All().Users[username] = config.User{
-  }
+func New(username string){
+  Save(username,config.User{})
   config.Flush()
 }
