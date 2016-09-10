@@ -18,7 +18,7 @@ func Load(fpath string) error {
 	}
 
 	if gConfig.TLS.PrivateKey == "" {
-		logging.Warning("config", "TLS keyfile paths omitted, skipping TLS setup")
+		//logging.Warning("config", "TLS keyfile paths omitted, skipping TLS setup")
 	} else {
 		tls, err := loadTLS(gConfig.TLS.PrivateKey, gConfig.TLS.Cert)
 		if err == nil {

@@ -27,7 +27,7 @@ func CheckUserPasswordSSH(username, password string) bool {
 
 	if usrStruct.AllowSSHPassword {
 		err := util.ComparePassHash(usrStruct.Password, username, password)
-		if err == nil{
+		if err == nil{ //if err == nil the passwords match
 			return true
 		}
 

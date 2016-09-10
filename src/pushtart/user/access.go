@@ -24,5 +24,4 @@ func Save(username string, usr config.User){
 
 func New(username string){
   Save(username,config.User{})
-  config.Flush()
 }
