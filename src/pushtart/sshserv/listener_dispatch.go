@@ -19,8 +19,8 @@ func startListener() error {
 		return err
 	}
 
-	go func(){
-		for { // accept + handshake routine
+	go func() {
+		for { // accept routine
 			newConn, err := listener.Accept()
 			if err != nil {
 				logging.Error("sshserv-accept", err.Error())
@@ -39,39 +39,41 @@ func handshakeSocket(newConn net.Conn) {
 		return
 	}
 	go ssh.DiscardRequests(reqs) // The incoming Request channel must be serviced.
-	serviceSshConnection(sshConn, chans)
+	serviceSSHConnection(sshConn, chans)
 }
 
-func serviceSshConnection(conn *ssh.ServerConn, newSshChannelReq <-chan ssh.NewChannel) {
-	for newChannel := range newSshChannelReq {
-		// Channels have a type, depending on the application level protocol intended. In the case of a shell, the type is
-		// "session" and ServerShell may be used to present a simple terminal interface.
+func serviceSSHConnection(conn *ssh.ServerConn, newSSHChannelReq <-chan ssh.NewChannel) {
+	for newChannel := range newSSHChannelReq {
 		if newChannel.ChannelType() != "session" {
 			newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
 			continue
 		}
-		logging.Info("sshserv-service", "Got channel request: "+newChannel.ChannelType()+" ("+conn.User()+")")
+		//logging.Info("sshserv-service", "Got channel request: "+newChannel.ChannelType()+" ("+conn.User()+")")
 
 		channel, requests, err := newChannel.Accept()
 		if err != nil {
 			logging.Error("sshserv-service", err.Error()+": "+conn.RemoteAddr().String())
+			continue
 		}
 
-		go serviceSshChannel(conn, channel, requests)
+		go serviceSSHChannel(conn, channel, requests)
 	}
 }
 
-
-func serviceSshChannel(conn *ssh.ServerConn, channel ssh.Channel, requests <-chan *ssh.Request){
+func serviceSSHChannel(conn *ssh.ServerConn, channel ssh.Channel, requests <-chan *ssh.Request) {
 	for req := range requests {
-			logging.Info("sshserv-service", "Got OOB request (" + string(req.Type) + ")")
-			switch req.Type {
-			case "shell":
-				req.Reply(true, nil)
-				go shell(conn, channel)
-			default:
-				req.Reply(false, nil)//err
-			}
+		//logging.Info("sshserv-service", "Got OOB request ("+string(req.Type)+")")
+		switch req.Type {
+
+		case "shell":
+			req.Reply(true, nil)
+			go shell(conn, channel)
+
+		case "pty-req": //need this to get shell to work for some reason
+			req.Reply(true, nil)
+
+		default:
+			req.Reply(false, nil) //err
+		}
 	}
-	logging.Info("sshserv-service", "Channel closing")
 }
