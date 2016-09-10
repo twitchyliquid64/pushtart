@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 	"pushtart/config"
 	"pushtart/constants"
 	"pushtart/logging"
@@ -31,6 +32,9 @@ func main() {
 			err = sshserv.Init()
 			if err != nil {
 				logging.Error("init-sshServ", err.Error())
+			}
+			for {
+				time.Sleep(1 * time.Second)
 			}
 
 		case "make-config":

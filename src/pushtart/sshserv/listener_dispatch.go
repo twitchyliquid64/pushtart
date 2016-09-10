@@ -19,14 +19,16 @@ func startListener() error {
 		return err
 	}
 
-	for { // accept + handshake routine
-		newConn, err := listener.Accept()
-		if err != nil {
-			logging.Error("sshserv-accept", err.Error())
-			continue
+	go func(){
+		for { // accept + handshake routine
+			newConn, err := listener.Accept()
+			if err != nil {
+				logging.Error("sshserv-accept", err.Error())
+				continue
+			}
+			go handshakeSocket(newConn)
 		}
-		go handshakeSocket(newConn)
-	}
+	}()
 	return nil
 }
 
@@ -50,9 +52,26 @@ func serviceSshConnection(conn *ssh.ServerConn, newSshChannelReq <-chan ssh.NewC
 		}
 		logging.Info("sshserv-service", "Got channel request: "+newChannel.ChannelType()+" ("+conn.User()+")")
 
-		_, _, err := newChannel.Accept()
+		channel, requests, err := newChannel.Accept()
 		if err != nil {
 			logging.Error("sshserv-service", err.Error()+": "+conn.RemoteAddr().String())
 		}
+
+		go serviceSshChannel(conn, channel, requests)
 	}
+}
+
+
+func serviceSshChannel(conn *ssh.ServerConn, channel ssh.Channel, requests <-chan *ssh.Request){
+	for req := range requests {
+			logging.Info("sshserv-service", "Got OOB request (" + string(req.Type) + ")")
+			switch req.Type {
+			case "shell":
+				req.Reply(true, nil)
+				go shell(conn, channel)
+			default:
+				req.Reply(false, nil)//err
+			}
+	}
+	logging.Info("sshserv-service", "Channel closing")
 }
