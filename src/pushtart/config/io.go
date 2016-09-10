@@ -26,6 +26,7 @@ func readConfig(fpath string) (*Config, error) {
 	} else if err != nil {
 		return nil, errors.New("Failed to decode config: " + err.Error())
 	}
+	m.Path = fpath
 	return m, nil
 }
 

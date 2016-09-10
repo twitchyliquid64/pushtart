@@ -33,6 +33,11 @@ func Generate(path string) (err error) {
 	return writeConfig()
 }
 
+func Flush(){
+	writeConfig()
+}
+
+
 // MakeSSHKeyPair make a pair of public and private keys for SSH access.
 // Public key is encoded in the format for inclusion in an OpenSSH authorized_keys file.
 // Private Key generated is PEM encoded

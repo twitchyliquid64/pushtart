@@ -19,10 +19,13 @@ type Config struct {
 		Listener string
 	}
 
-	Users map[string]struct {
-		Name             string
-		Password         string
-		AllowSSHPassword bool
-		SSHPubKey        string
-	}
+	Users map[string]User
+}
+
+
+type User struct {
+	Name             string
+	Password         string
+	AllowSSHPassword bool
+	SSHPubKey        string
 }
