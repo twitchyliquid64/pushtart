@@ -11,6 +11,7 @@ import (
 	"pushtart/config"
 	"pushtart/logging"
 	"strings"
+	"sync"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -35,13 +36,21 @@ func checkRepo(cmdStr string) {
 
 func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 	cmdStr := string(payload[4:])
-	defer channel.Close()
+	defer func() {
+		err := channel.Close()
+		if err != nil {
+			logging.Error("sshserv-exec", "Close error: "+err.Error())
+		}
+		logging.Info("sshserv-exec", "Channel closing: "+cmdStr)
+	}()
 
 	if !strings.HasPrefix(cmdStr, "git-receive-pack") {
+		logging.Warning("sshserv-exec", "Exec request disallowed: "+cmdStr)
 		channel.Write([]byte("Invalid command - are you using git push?"))
 	} else {
 		checkRepo(cmdStr)
 		cmd := exec.Command("git-receive-pack", getPath(cmdStr))
+		var wg sync.WaitGroup
 		stdinP, err := cmd.StdinPipe()
 		if err != nil {
 			logging.Error("sshserv-exec", "Could not open git-recieve-pack stdin: "+err.Error())
@@ -50,20 +59,37 @@ func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 		if err != nil {
 			logging.Error("sshserv-exec", "Could not open git-recieve-pack stdout: "+err.Error())
 		}
+		stderr, err := cmd.StderrPipe()
+		if err != nil {
+			logging.Error("sshserv-exec", "Could not open git-recieve-pack stderr: "+err.Error())
+		}
 
 		//copy remote --> git
+		wg.Add(1)
 		go func() {
 			_, err = io.Copy(stdinP, channel)
 			if err != nil {
 				logging.Error("sshserv-exec", "stdin-read error: "+err.Error())
 			}
+			wg.Done()
 		}()
 		//copy git --> remote
+		wg.Add(1)
 		go func() {
 			_, err = io.Copy(channel, stdout)
 			if err != nil {
 				logging.Error("sshserv-exec", "stdout-read error: "+err.Error())
 			}
+			wg.Done()
+		}()
+		//copy git --> remote (stderr)
+		wg.Add(1)
+		go func() {
+			_, err = io.Copy(channel.Stderr(), stderr)
+			if err != nil {
+				logging.Error("sshserv-exec", "stderr-read error: "+err.Error())
+			}
+			wg.Done()
 		}()
 
 		err = cmd.Start()
@@ -74,7 +100,7 @@ func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 		if err != nil {
 			logging.Error("sshserv-exec", "cmd.Wait() error: "+err.Error())
 		}
-
+		wg.Wait()
 		//channel.Write(makeGitMsg("Hello there", false))
 	}
 }
