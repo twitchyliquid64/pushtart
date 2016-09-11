@@ -50,59 +50,53 @@ func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 	} else {
 		checkRepo(cmdStr)
 		cmd := exec.Command("git-receive-pack", getPath(cmdStr))
-		var wg sync.WaitGroup
-		stdinP, err := cmd.StdinPipe()
-		if err != nil {
-			logging.Error("sshserv-exec", "Could not open git-recieve-pack stdin: "+err.Error())
-		}
-		stdout, err := cmd.StdoutPipe()
-		if err != nil {
-			logging.Error("sshserv-exec", "Could not open git-recieve-pack stdout: "+err.Error())
-		}
-		stderr, err := cmd.StderrPipe()
-		if err != nil {
-			logging.Error("sshserv-exec", "Could not open git-recieve-pack stderr: "+err.Error())
-		}
-
-		//copy remote --> git
-		wg.Add(1)
-		go func() {
-			_, err = io.Copy(stdinP, channel)
-			if err != nil {
-				logging.Error("sshserv-exec", "stdin-read error: "+err.Error())
-			}
-			wg.Done()
-		}()
-		//copy git --> remote
-		wg.Add(1)
-		go func() {
-			_, err = io.Copy(channel, stdout)
-			if err != nil {
-				logging.Error("sshserv-exec", "stdout-read error: "+err.Error())
-			}
-			wg.Done()
-		}()
-		//copy git --> remote (stderr)
-		wg.Add(1)
-		go func() {
-			_, err = io.Copy(channel.Stderr(), stderr)
-			if err != nil {
-				logging.Error("sshserv-exec", "stderr-read error: "+err.Error())
-			}
-			wg.Done()
-		}()
-
-		err = cmd.Start()
-		if err != nil {
-			logging.Error("sshserv-exec", "cmd.Start() error: "+err.Error())
-		}
-		err = cmd.Wait()
-		if err != nil {
-			logging.Error("sshserv-exec", "cmd.Wait() error: "+err.Error())
-		}
-		wg.Wait()
+		runCommandAcrossSSHChannel(cmd, channel)
 		//channel.Write(makeGitMsg("Hello there", false))
 	}
+}
+
+func pipeChannelCopyRoutine(name string, dst io.Writer, src io.Reader, wg *sync.WaitGroup) {
+	_, err := io.Copy(dst, src)
+	if err != nil {
+		logging.Error("sshserv-exec", name+" error: "+err.Error())
+	}
+	wg.Done()
+}
+
+func runCommandAcrossSSHChannel(cmd *exec.Cmd, channel ssh.Channel) {
+	var wg sync.WaitGroup
+	stdinP, err := cmd.StdinPipe()
+	if err != nil {
+		logging.Error("sshserv-exec", "Could not open git-recieve-pack stdin: "+err.Error())
+	}
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		logging.Error("sshserv-exec", "Could not open git-recieve-pack stdout: "+err.Error())
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		logging.Error("sshserv-exec", "Could not open git-recieve-pack stderr: "+err.Error())
+	}
+
+	//copy remote --> command
+	wg.Add(1)
+	go pipeChannelCopyRoutine("stdin", stdinP, channel, &wg)
+	//copy command --> remote
+	wg.Add(1)
+	go pipeChannelCopyRoutine("stdout", channel, stdout, &wg)
+	//copy command --> remote (stderr)
+	wg.Add(1)
+	go pipeChannelCopyRoutine("stderr", channel.Stderr(), stderr, &wg)
+
+	err = cmd.Start()
+	if err != nil {
+		logging.Error("sshserv-exec", "cmd.Start() error: "+err.Error())
+	}
+	err = cmd.Wait()
+	if err != nil {
+		logging.Error("sshserv-exec", "cmd.Wait() error: "+err.Error())
+	}
+	wg.Wait()
 }
 
 func makeGitMsg(msg string, isError bool) []byte {
