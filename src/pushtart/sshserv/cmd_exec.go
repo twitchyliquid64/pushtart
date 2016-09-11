@@ -44,15 +44,27 @@ func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 		logging.Info("sshserv-exec", "Channel closing: "+cmdStr)
 	}()
 
-	if !strings.HasPrefix(cmdStr, "git-receive-pack") {
-		logging.Warning("sshserv-exec", "Exec request disallowed: "+cmdStr)
-		channel.Write([]byte("Invalid command - are you using git push?"))
-	} else {
+	if strings.HasPrefix(cmdStr, "git-receive-pack") {
 		checkRepo(cmdStr)
 		cmd := exec.Command("git-receive-pack", getPath(cmdStr))
-		runCommandAcrossSSHChannel(cmd, channel)
+		err := runCommandAcrossSSHChannel(cmd, channel)
+		if err != nil {
+			logging.Error("sshserv-exec", "runCommandAcrossSSHChannel() returned error: "+err.Error())
+			sendExitStatus(channel, 1)
+			return
+		}
 		//channel.Write(makeGitMsg("Hello there", false))
+		sendExitStatus(channel, 0)
+	} else {
+		logging.Warning("sshserv-exec", "Exec request disallowed: "+cmdStr)
+		channel.Write([]byte("Invalid command - are you using git push?"))
 	}
+}
+
+func sendExitStatus(channel ssh.Channel, code int) {
+	buf := new(bytes.Buffer)
+	binary.Write(buf, binary.BigEndian, uint32(code))
+	channel.SendRequest("exit-status", false, buf.Bytes())
 }
 
 func pipeChannelCopyRoutine(name string, dst io.Writer, src io.Reader, wg *sync.WaitGroup) {
@@ -63,7 +75,7 @@ func pipeChannelCopyRoutine(name string, dst io.Writer, src io.Reader, wg *sync.
 	wg.Done()
 }
 
-func runCommandAcrossSSHChannel(cmd *exec.Cmd, channel ssh.Channel) {
+func runCommandAcrossSSHChannel(cmd *exec.Cmd, channel ssh.Channel) error {
 	var wg sync.WaitGroup
 	stdinP, err := cmd.StdinPipe()
 	if err != nil {
@@ -78,25 +90,23 @@ func runCommandAcrossSSHChannel(cmd *exec.Cmd, channel ssh.Channel) {
 		logging.Error("sshserv-exec", "Could not open git-recieve-pack stderr: "+err.Error())
 	}
 
-	//copy remote --> command
-	wg.Add(1)
+	wg.Add(1) //copy remote --> command
 	go pipeChannelCopyRoutine("stdin", stdinP, channel, &wg)
-	//copy command --> remote
-	wg.Add(1)
+	wg.Add(1) //copy command --> remote
 	go pipeChannelCopyRoutine("stdout", channel, stdout, &wg)
-	//copy command --> remote (stderr)
-	wg.Add(1)
+	wg.Add(1) //copy command --> remote (stderr)
 	go pipeChannelCopyRoutine("stderr", channel.Stderr(), stderr, &wg)
 
 	err = cmd.Start()
 	if err != nil {
-		logging.Error("sshserv-exec", "cmd.Start() error: "+err.Error())
+		return err
 	}
 	err = cmd.Wait()
-	if err != nil {
-		logging.Error("sshserv-exec", "cmd.Wait() error: "+err.Error())
-	}
 	wg.Wait()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func makeGitMsg(msg string, isError bool) []byte {

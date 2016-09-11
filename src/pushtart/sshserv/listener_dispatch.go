@@ -62,7 +62,7 @@ func serviceSSHConnection(conn *ssh.ServerConn, newSSHChannelReq <-chan ssh.NewC
 
 func serviceSSHChannel(conn *ssh.ServerConn, channel ssh.Channel, requests <-chan *ssh.Request) {
 	for req := range requests {
-		//logging.Info("sshserv-service", "Got OOB request ("+string(req.Type)+")")
+		//logging.Info("sshserv-service", "Got OOB request ("+string(req.Type)+"): "+string(req.Payload))
 		switch req.Type {
 
 		case "shell":

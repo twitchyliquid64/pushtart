@@ -1,26 +1,26 @@
 package logging
 
 import (
-	"log"
 	"fmt"
-	"strings"
+	"log"
 	"os"
+	"strings"
+	"sync"
 )
-
 
 func Info(module string, content ...interface{}) {
 	writeLogLine(formatLogPrefix(module, "I", cyan(), content...))
-		publishLogMessage("I", module, content...)
+	publishLogMessage("I", module, content...)
 }
 
 func Warning(module string, content ...interface{}) {
 	writeLogLine(formatLogPrefix(module, "W", yellow(), content...))
-		publishLogMessage("W", module, content...)
+	publishLogMessage("W", module, content...)
 }
 
 func Error(module string, content ...interface{}) {
 	writeLogLine(formatLogPrefix(module, "E", red(), content...))
-		publishLogMessage("E", module, content...)
+	publishLogMessage("E", module, content...)
 }
 
 func Fatal(module string, content ...interface{}) {
@@ -29,8 +29,7 @@ func Fatal(module string, content ...interface{}) {
 	os.Exit(1)
 }
 
-
-func formatLogPrefix(module, messagePrefix, prefixColor string, content ...interface{})string {
+func formatLogPrefix(module, messagePrefix, prefixColor string, content ...interface{}) string {
 	c := fmt.Sprint(content...)
 	module = strings.ToUpper(module)
 	if module != "" {
@@ -40,7 +39,11 @@ func formatLogPrefix(module, messagePrefix, prefixColor string, content ...inter
 	}
 }
 
+var logSync sync.Mutex
+
 func writeLogLine(inp string) {
+	logSync.Lock()
+	defer logSync.Unlock()
 	log.Println(inp)
 }
 
