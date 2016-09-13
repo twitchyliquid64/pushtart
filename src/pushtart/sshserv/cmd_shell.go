@@ -48,6 +48,6 @@ func autocomplete(line string, pos int, key rune) (newLine string, newPos int, o
 	return line, pos, false
 }
 
-var availableCommands = []string{"make-user"}
+var availableCommands = []string{"make-user", "list", "edit-user"}
 
 var banner = "____            _   _____          _\r\n|  _ \\ _   _ ___| |_|_   _|_ _ _ __| |_\r\n| |_) | | | / __| '_ \\| |/ _` | '__| __|\r\n|  __/| |_| \\__ \\ | | | | (_| | |  | |_\r\n|_|    \\__,_|___/_| |_|_|\\__,_|_|   \\__|\r\nPress Control-D to exit the command shell.\r\n\r\n"

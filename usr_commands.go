@@ -40,15 +40,15 @@ func saveUser(username string, usr config.User, params map[string]string){
 }
 
 
-func editUser(params map[string]string){
+func editUser(params map[string]string, w io.Writer){
 	if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
-		fmt.Println("USAGE: pushtart edit-user --username <username> [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")
+		fmt.Fprintln(w, "USAGE: pushtart edit-user --username <username> [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")
 		printMissingFields(missingFields)
 		return
 	}
 
   if !user.Exists(params["username"]){
-    fmt.Println("Err: user does not exist")
+    fmt.Fprintln(w, "Err: user does not exist")
     return
   }
 
@@ -56,15 +56,15 @@ func editUser(params map[string]string){
 	saveUser(params["username"], usr, params)
 }
 
-func makeUser(params map[string]string){
+func makeUser(params map[string]string, w io.Writer){
 	if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
-		fmt.Println("USAGE: pushtart make-user --username <username> [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")
+		fmt.Fprintln(w, "USAGE: pushtart make-user --username <username> [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")
 		printMissingFields(missingFields)
 		return
 	}
 
 	if user.Exists(params["username"]){
-		fmt.Println("Err: user already exists")
+		fmt.Fprintln(w, "Err: user already exists")
 		return
 	}
 
@@ -74,15 +74,15 @@ func makeUser(params map[string]string){
 }
 
 
-func importSshKey(params map[string]string){
+func importSshKey(params map[string]string, w io.Writer){
   if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
-		fmt.Println("USAGE: pushtart import-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>]")
+		fmt.Fprintln(w, "USAGE: pushtart import-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>]")
 		printMissingFields(missingFields)
 		return
 	}
 
   if !user.Exists(params["username"]){
-    fmt.Println("Err: user does not exist")
+    fmt.Fprintln(w, "Err: user does not exist")
     return
   }
 

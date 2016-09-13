@@ -42,15 +42,15 @@ func main() {
 
 		case "make-user":
 			configInit(params["config"])
-			makeUser(params)
+			makeUser(params, os.Stdout)
 
 		case "edit-user":
 			configInit(params["config"])
-			editUser(params)
+			editUser(params, os.Stdout)
 
 		case "import-ssh-key":
 			configInit(params["config"])
-			importSshKey(params)
+			importSshKey(params, os.Stdout)
 		}
 	}
 }
