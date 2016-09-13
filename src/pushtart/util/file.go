@@ -36,3 +36,14 @@ func GetFilenameListInFolder(folder, suffix string)([]string,error){
     }
     return output, nil
 }
+
+
+func DirExists(path string) (bool, error) {
+	s, err := os.Stat(path)
+	if err == nil {
+		if s.IsDir() {
+			return true, nil
+		}
+	}
+	return false, err
+}

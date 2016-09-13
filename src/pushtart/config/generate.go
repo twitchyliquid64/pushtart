@@ -10,6 +10,7 @@ import (
 	"pushtart/logging"
 	"strconv"
 	"path"
+	"pushtart/util"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -35,11 +36,17 @@ func Generate(fpath string) (err error) {
 	if gConfig.DataPath == "" {
 		pwd, _ := os.Getwd()
 		gConfig.DataPath = path.Join(pwd, "gitdata")
+		if exists, _ := util.DirExists(gConfig.DataPath); !exists {
+			os.Mkdir(gConfig.DataPath, 0777)
+		}
 	}
 
 	if gConfig.DeploymentPath == "" {
 		pwd, _ := os.Getwd()
 		gConfig.DeploymentPath = path.Join(pwd, "deploymentdata")
+		if exists, _ := util.DirExists(gConfig.DeploymentPath); !exists {
+			os.Mkdir(gConfig.DeploymentPath, 0777)
+		}
 	}
 
 

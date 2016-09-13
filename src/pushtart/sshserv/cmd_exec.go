@@ -10,6 +10,7 @@ import (
 	"path"
 	"pushtart/config"
 	"pushtart/logging"
+	"pushtart/util"
 	"strings"
 	"sync"
 
@@ -22,7 +23,7 @@ func getPath(cmdStr string) string {
 
 func checkRepo(cmdStr string) {
 	repoPath := getPath(cmdStr)
-	exist, _ := dirExists(repoPath)
+	exist, _ := util.DirExists(repoPath)
 	if !exist {
 		os.Mkdir(repoPath, 0777)
 	}
@@ -124,14 +125,4 @@ func makeGitMsg(msg string, isError bool) []byte {
 
 	output += msg
 	return []byte(output)
-}
-
-func dirExists(path string) (bool, error) {
-	s, err := os.Stat(path)
-	if err == nil {
-		if s.IsDir() {
-			return true, nil
-		}
-	}
-	return false, err
 }
