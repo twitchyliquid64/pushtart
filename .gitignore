@@ -1,5 +1,7 @@
 pkg/
 bin/
+gitdata/
+deploymentdata/
 build.sh
 config.json
 ./pushtart

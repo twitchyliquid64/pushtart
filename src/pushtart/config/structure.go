@@ -3,6 +3,7 @@ package config
 type Config struct {
 	Name     string //canonical name to help identify this server
 	DataPath string
+	DeploymentPath string
 	Path     string   `json:"-"` //path used to represent where the file is currently stored.
 	TLS      struct { //Relative file addresses of the .pem files needed for TLS.
 		PrivateKey string

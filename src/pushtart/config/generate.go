@@ -9,17 +9,18 @@ import (
 	"pushtart/constants"
 	"pushtart/logging"
 	"strconv"
+	"path"
 
 	"golang.org/x/crypto/ssh"
 )
 
-func Generate(path string) (err error) {
-	logging.Info("config", "Now generating default config to: "+path)
+func Generate(fpath string) (err error) {
+	logging.Info("config", "Now generating default config to: "+fpath)
 
 	if gConfig == nil {
 		gConfig = &Config{
 			Name: "pushtart",
-			Path: path,
+			Path: fpath,
 		}
 	}
 
@@ -33,8 +34,14 @@ func Generate(path string) (err error) {
 
 	if gConfig.DataPath == "" {
 		pwd, _ := os.Getwd()
-		gConfig.DataPath = pwd
+		gConfig.DataPath = path.Join(pwd, "gitdata")
 	}
+
+	if gConfig.DeploymentPath == "" {
+		pwd, _ := os.Getwd()
+		gConfig.DeploymentPath = path.Join(pwd, "deploymentdata")
+	}
+
 
 	return writeConfig()
 }
