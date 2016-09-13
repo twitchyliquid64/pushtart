@@ -2,7 +2,9 @@ package sshserv
 
 import (
 	"pushtart/logging"
+	"pushtart/sshserv/cmd_registry"
 	"strings"
+	"io"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
@@ -22,6 +24,10 @@ func shell(conn *ssh.ServerConn, channel ssh.Channel) {
 			break
 		}
 		logging.Info("sshserv-shell", "Got line: "+line)
+		spl := strings.Split(line, " ")
+		if ok, runFunc := cmd_registry.Command(spl[0]); ok {
+			runFunc(parseCommands(spl[1:]), &CommandOutputRewriter{Out: term})
+		}
 	}
 }
 
@@ -47,6 +53,25 @@ func autocomplete(line string, pos int, key rune) (newLine string, newPos int, o
 	}
 	return line, pos, false
 }
+
+func parseCommands(input []string)map[string]string{
+  out := map[string]string{}
+  for i := 0; i < len(input); i++{
+    if strings.HasPrefix(input[i], "--") && len(input[i]) > 2 && (i+1) < len(input){
+      out[input[i][2:]] = input[i+1]
+      i++
+    }
+  }
+  return out
+}
+
+type CommandOutputRewriter struct{
+	Out io.Writer
+}
+func (c *CommandOutputRewriter)Write(p []byte) (n int, err error){
+	return c.Out.Write([]byte(strings.Replace(string(p), "\n", "\r\n", -1)))
+}
+
 
 var availableCommands = []string{"make-user", "list", "edit-user"}
 

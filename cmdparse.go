@@ -4,6 +4,7 @@ import (
   "pushtart/constants"
   "strings"
   "fmt"
+  "io"
 )
 
 func parseCommands(input []string)map[string]string{
@@ -40,6 +41,6 @@ func checkHasFields(needFields []string, input map[string]string)[]string{
 }
 
 
-func printMissingFields(missingFields []string){
-  fmt.Println("Missing fields: " + strings.Join(missingFields, ","))
+func printMissingFields(missingFields []string, w io.Writer){
+  fmt.Fprintln(w, "Missing fields: " + strings.Join(missingFields, ","))
 }

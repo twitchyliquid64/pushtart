@@ -43,7 +43,7 @@ func saveUser(username string, usr config.User, params map[string]string){
 func editUser(params map[string]string, w io.Writer){
 	if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart edit-user --username <username> [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")
-		printMissingFields(missingFields)
+		printMissingFields(missingFields, w)
 		return
 	}
 
@@ -59,7 +59,7 @@ func editUser(params map[string]string, w io.Writer){
 func makeUser(params map[string]string, w io.Writer){
 	if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart make-user --username <username> [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")
-		printMissingFields(missingFields)
+		printMissingFields(missingFields, w)
 		return
 	}
 
@@ -77,7 +77,7 @@ func makeUser(params map[string]string, w io.Writer){
 func importSshKey(params map[string]string, w io.Writer){
   if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart import-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>]")
-		printMissingFields(missingFields)
+		printMissingFields(missingFields, w)
 		return
 	}
 

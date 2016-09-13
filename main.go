@@ -8,9 +8,13 @@ import (
 	"pushtart/constants"
 	"pushtart/logging"
 	"pushtart/sshserv"
+	"pushtart/sshserv/cmd_registry"
 )
 
 func main() {
+	cmd_registry.Register("make-user", makeUser)
+	cmd_registry.Register("edit-user", editUser)
+
 	if len(os.Args) < 2 {
 		fmt.Println("USAGE: pushtart <command> [command-specific-arguments...]")
 		fmt.Println("If no config file is specified, config.json will be used.")
