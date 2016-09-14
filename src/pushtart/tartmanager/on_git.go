@@ -9,12 +9,15 @@ import (
   "os/exec"
 )
 
-func getPath(pushURL string) string {
+func getRepoPath(pushURL string) string {
 	return path.Join(config.All().DataPath, pushURL)
+}
+func getDeploymentPath(pushURL string) string {
+  return path.Join(config.All().DeploymentPath, pushURL)
 }
 
 func checkCreateRepo(pushURL string)error {
-  repoPath := getPath(pushURL)
+  repoPath := getRepoPath(pushURL)
 
 	if tartExists := Exists(pushURL); !tartExists{
 		logging.Info("tartmanager-git-hooks", "Recieving git push for previously-unknown tart (" + pushURL + ").")
@@ -46,7 +49,7 @@ func checkCreateRepo(pushURL string)error {
 
       proc, err := os.FindProcess(tart.PID)
       if err != nil{
-        return
+        return nil
       }
       proc.Kill()
     }
@@ -64,8 +67,27 @@ func PreGitRecieve(pushURL string)error{
 
 func PostGitRecieve(pushURL, owner string)error {
   if !Exists(pushURL) {
-    logging.Error("tartmanager-git-hooks", "Registering new tart.")
+    logging.Info("tartmanager-git-hooks", "Registering new tart.")
     New(pushURL, owner)
+  } else {
+    logging.Info("tartmanager-git-hooks", "Deleting old deployment directory.")
+    cmd := exec.Command("rm", "-rf", getDeploymentPath(pushURL))
+  	cmd.Output()
+  }
+
+  cmd := exec.Command("mkdir", getDeploymentPath(pushURL))
+  _, err := cmd.Output()
+  if err != nil{
+    logging.Error("tartmanager-git-hooks", "Failed to create deployment directory: " + err.Error())
+    return err
+  }
+
+  cmd = exec.Command("git", "clone", getRepoPath(pushURL), "./")
+  cmd.Dir = getDeploymentPath(pushURL)
+  _, err = cmd.Output()
+  if err != nil{
+    logging.Error("tartmanager-git-hooks", "Failed to clone repository to deployment directory: " + err.Error())
+    return err
   }
   return nil
 }
