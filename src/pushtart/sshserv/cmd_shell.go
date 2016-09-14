@@ -23,8 +23,13 @@ func shell(conn *ssh.ServerConn, channel ssh.Channel) {
 			logging.Error("sshserv-shell", err.Error())
 			break
 		}
-		logging.Info("sshserv-shell", "Got line: "+line)
+		logging.Info("sshserv-shell", "["+conn.User()+"]: "+line)
 		spl := strings.Split(line, " ")
+
+		if spl[0] == "\\q" || spl[0] == "exit" {
+			break
+		}
+
 		if ok, runFunc := cmd_registry.Command(spl[0]); ok {
 			runFunc(parseCommands(spl[1:]), &commandOutputRewriter{Out: term})
 		}
