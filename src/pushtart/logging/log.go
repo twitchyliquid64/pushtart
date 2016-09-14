@@ -8,21 +8,25 @@ import (
 	"sync"
 )
 
+//Info writes a log line to the console + backlog of type info.
 func Info(module string, content ...interface{}) {
 	writeLogLine(formatLogPrefix(module, "I", cyan(), content...))
 	publishLogMessage("I", module, content...)
 }
 
+//Warning writes a log line to the console + backlog of type warning.
 func Warning(module string, content ...interface{}) {
 	writeLogLine(formatLogPrefix(module, "W", yellow(), content...))
 	publishLogMessage("W", module, content...)
 }
 
+//Error writes a log line to the console + backlog of type error.
 func Error(module string, content ...interface{}) {
 	writeLogLine(formatLogPrefix(module, "E", red(), content...))
 	publishLogMessage("E", module, content...)
 }
 
+//Fatal writes a log line to the console + backlog of type fatal, then terminates the program.
 func Fatal(module string, content ...interface{}) {
 	writeLogLine(formatLogPrefix(module, "F", red(), content...))
 	publishLogMessage("F", module, content...)
@@ -34,9 +38,8 @@ func formatLogPrefix(module, messagePrefix, prefixColor string, content ...inter
 	module = strings.ToUpper(module)
 	if module != "" {
 		return prefixColor + "[" + messagePrefix + "] " + blue() + "[" + module + "] " + clear() + c
-	} else {
-		return prefixColor + "[" + messagePrefix + "] " + clear() + c
 	}
+	return prefixColor + "[" + messagePrefix + "] " + clear() + c
 }
 
 var logSync sync.Mutex

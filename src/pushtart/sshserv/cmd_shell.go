@@ -54,6 +54,7 @@ func autocomplete(line string, pos int, key rune) (newLine string, newPos int, o
 	return line, pos, false
 }
 
+//TODO: move parseCommands to util and share it
 func parseCommands(input []string) map[string]string {
 	out := map[string]string{}
 	for i := 0; i < len(input); i++ {

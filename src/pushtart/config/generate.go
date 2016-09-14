@@ -15,6 +15,8 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+//Generate verifies that all necessary fields in the current configuration have been set, creating them if they have not.
+//It then writes the configuration to file, using the path specified by fpath if a configuration path is not already known.
 func Generate(fpath string) (err error) {
 	logging.Info("config", "Now generating default config to: "+fpath)
 
@@ -37,6 +39,7 @@ func Generate(fpath string) (err error) {
 		pwd, _ := os.Getwd()
 		gConfig.DataPath = path.Join(pwd, "gitdata")
 		if exists, _ := util.DirExists(gConfig.DataPath); !exists {
+			logging.Info("config-generate", "Creating directory for repositories: "+gConfig.DataPath)
 			os.Mkdir(gConfig.DataPath, 0777)
 		}
 	}
@@ -45,6 +48,7 @@ func Generate(fpath string) (err error) {
 		pwd, _ := os.Getwd()
 		gConfig.DeploymentPath = path.Join(pwd, "deploymentdata")
 		if exists, _ := util.DirExists(gConfig.DeploymentPath); !exists {
+			logging.Info("config-generate", "Creating directory for deployments: "+gConfig.DeploymentPath)
 			os.Mkdir(gConfig.DeploymentPath, 0777)
 		}
 	}
@@ -52,6 +56,7 @@ func Generate(fpath string) (err error) {
 	return writeConfig()
 }
 
+//Flush writes the current configuration to disk, using the path specified in the configuration.
 func Flush() {
 	writeConfig()
 }

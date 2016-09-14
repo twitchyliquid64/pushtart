@@ -1,5 +1,6 @@
 package config
 
+//Config represents the global configuration of the system, and the JSON structure on disk.
 type Config struct {
 	Name           string //canonical name to help identify this server
 	DataPath       string
@@ -24,6 +25,7 @@ type Config struct {
 	Users map[string]User
 }
 
+//User represents an account which has access to the system.
 type User struct {
 	Name             string
 	Password         string

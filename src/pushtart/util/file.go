@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+//GetFilenameListInFolder returns a list of files (not directories) with a given suffix in a given folder. The returned []string
+//represents files with an absolute path.
 func GetFilenameListInFolder(folder, suffix string) ([]string, error) {
 	output := []string{}
 
@@ -36,6 +38,7 @@ func GetFilenameListInFolder(folder, suffix string) ([]string, error) {
 	return output, nil
 }
 
+//DirExists returns true if a directory exists at path.
 func DirExists(path string) (bool, error) {
 	s, err := os.Stat(path)
 	if err == nil {

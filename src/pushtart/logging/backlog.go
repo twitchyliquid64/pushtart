@@ -8,12 +8,12 @@ import (
 
 //implements a small history of log messages
 
-const DEFAULT_BACKLOG_SIZE = 15
+const defaultBacklogSize = 15
 
 var backlog *ring.Ring
 
 func init() {
-	backlog = ring.New(DEFAULT_BACKLOG_SIZE)
+	backlog = ring.New(defaultBacklogSize)
 }
 
 func addToBacklog(component, typ, msg string) {
@@ -28,6 +28,7 @@ func addToBacklog(component, typ, msg string) {
 	backlog = backlog.Next()
 }
 
+//GetBacklog returns the last few log messages.
 func GetBacklog() []LogMessage {
 	var output []LogMessage
 

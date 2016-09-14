@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+//LogMessage represents a log line.
 type LogMessage struct {
 	Component string
 	Type      string
@@ -19,21 +20,23 @@ type LogMessage struct {
 var subscribers = map[chan LogMessage]bool{}
 var subStructLock sync.Mutex
 
-func Subscribe(in chan LogMessage) { //DO NOT LOG WITHIN THIS MSG - DEADLOCK
+//Subscribe registers the given channel to recieve new LogMessages whenever a log line is generated.
+func Subscribe(in chan LogMessage) { //DO NOT LOG WITHIN THIS METHOD - DEADLOCK
 	subStructLock.Lock()
 	defer subStructLock.Unlock()
 
 	subscribers[in] = true
 }
 
-func Unsubscribe(in chan LogMessage) { //DO NOT LOG WITHIN THIS MSG - DEADLOCK
+//Unsubscribe unregisters the given channel from recieving future LogMessages.
+func Unsubscribe(in chan LogMessage) { //DO NOT LOG WITHIN THIS METHOD - DEADLOCK
 	subStructLock.Lock()
 	defer subStructLock.Unlock()
 
 	delete(subscribers, in)
 }
 
-func publishMessage(component, typ, msg string) { //DO NOT LOG WITHIN THIS MSG - DEADLOCK
+func publishMessage(component, typ, msg string) { //DO NOT LOG WITHIN THIS METHOD - DEADLOCK
 	pkt := LogMessage{
 		Component: component,
 		Type:      typ,
@@ -43,7 +46,7 @@ func publishMessage(component, typ, msg string) { //DO NOT LOG WITHIN THIS MSG -
 
 	subStructLock.Lock()
 	defer subStructLock.Unlock()
-	for ch, _ := range subscribers {
+	for ch := range subscribers {
 		select { //prevents blocking if a channel is full
 		case ch <- pkt:
 		default:
