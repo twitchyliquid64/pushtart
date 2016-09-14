@@ -23,6 +23,7 @@ type Config struct {
 	}
 
 	Users map[string]User
+	Tarts map[string]Tart
 }
 
 //User represents an account which has access to the system.
@@ -31,4 +32,13 @@ type User struct {
 	Password         string
 	AllowSSHPassword bool
 	SSHPubKey        string
+}
+
+//Tart stores information for tarts which are stored in the system.
+type Tart struct {
+	PushURL string
+	Name string
+	Owner string
+	IsRunning bool
+	PID int
 }

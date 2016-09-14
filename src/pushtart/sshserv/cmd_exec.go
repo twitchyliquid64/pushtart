@@ -5,34 +5,23 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"io"
-	"os"
 	"os/exec"
 	"path"
 	"pushtart/config"
 	"pushtart/logging"
-	"pushtart/util"
+	"pushtart/tartmanager"
 	"strings"
 	"sync"
 
 	"golang.org/x/crypto/ssh"
 )
 
-func getPath(cmdStr string) string {
-	return path.Join(config.All().DataPath, strings.Replace(cmdStr[17:], "'", "", -1))
+func extractPushURL(cmdStr string)string {
+	return strings.Replace(cmdStr[17:], "'", "", -1)
 }
 
-func checkRepo(cmdStr string) {
-	repoPath := getPath(cmdStr)
-	exist, _ := util.DirExists(repoPath)
-	if !exist {
-		os.Mkdir(repoPath, 0777)
-	}
-	cmd := exec.Command("git", "init", "--bare")
-	cmd.Dir = repoPath
-	err := cmd.Run()
-	if err != nil {
-		logging.Error("sshserv-exec", "pre-init error: "+err.Error())
-	}
+func getPath(cmdStr string) string {
+	return path.Join(config.All().DataPath, extractPushURL(cmdStr))
 }
 
 func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
@@ -46,14 +35,26 @@ func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 	}()
 
 	if strings.HasPrefix(cmdStr, "git-receive-pack") {
-		checkRepo(cmdStr)
+		err := tartmanager.PreGitRecieve(extractPushURL(cmdStr))
+		if err != nil { //err is already logged.
+			sendExitStatus(channel, 1)
+			return
+		}
+
 		cmd := exec.Command("git-receive-pack", getPath(cmdStr))
-		err := runCommandAcrossSSHChannel(cmd, channel)
+		err = runCommandAcrossSSHChannel(cmd, channel)
 		if err != nil {
 			logging.Error("sshserv-exec", "runCommandAcrossSSHChannel() returned error: "+err.Error())
 			sendExitStatus(channel, 1)
 			return
 		}
+
+		err = tartmanager.PostGitRecieve(extractPushURL(cmdStr), conn.User())
+		if err != nil { //err is already logged
+			sendExitStatus(channel, 1)
+			return
+		}
+
 		//channel.Write(makeGitMsg("Hello there", false))
 		sendExitStatus(channel, 0)
 	} else {
