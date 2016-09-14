@@ -6,11 +6,11 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"os"
+	"path"
 	"pushtart/constants"
 	"pushtart/logging"
-	"strconv"
-	"path"
 	"pushtart/util"
+	"strconv"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -48,7 +48,6 @@ func Generate(fpath string) (err error) {
 			os.Mkdir(gConfig.DeploymentPath, 0777)
 		}
 	}
-
 
 	return writeConfig()
 }

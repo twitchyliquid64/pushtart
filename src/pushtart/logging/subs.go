@@ -4,50 +4,49 @@ package logging
 // Implementers call Subscribe(chan LogMessage), and log messages will be pushed to the given channel IF THERE IS SPACE.
 // Unsubscribe is called when done.
 
-
 import (
-  "time"
-  "sync"
+	"sync"
+	"time"
 )
 
 type LogMessage struct {
-  Component string
-  Type string
-  Message string
-  Created int64
+	Component string
+	Type      string
+	Message   string
+	Created   int64
 }
 
-var subscribers  = map[chan LogMessage]bool{}
+var subscribers = map[chan LogMessage]bool{}
 var subStructLock sync.Mutex
 
-func Subscribe(in chan LogMessage){ //DO NOT LOG WITHIN THIS MSG - DEADLOCK
-  subStructLock.Lock()
-  defer subStructLock.Unlock()
+func Subscribe(in chan LogMessage) { //DO NOT LOG WITHIN THIS MSG - DEADLOCK
+	subStructLock.Lock()
+	defer subStructLock.Unlock()
 
-  subscribers[in] = true
+	subscribers[in] = true
 }
 
-func Unsubscribe(in chan LogMessage){ //DO NOT LOG WITHIN THIS MSG - DEADLOCK
-  subStructLock.Lock()
-  defer subStructLock.Unlock()
+func Unsubscribe(in chan LogMessage) { //DO NOT LOG WITHIN THIS MSG - DEADLOCK
+	subStructLock.Lock()
+	defer subStructLock.Unlock()
 
-  delete(subscribers, in)
+	delete(subscribers, in)
 }
 
-func publishMessage(component, typ, msg string){ //DO NOT LOG WITHIN THIS MSG - DEADLOCK
-  pkt := LogMessage{
-    Component: component,
-    Type: typ,
-    Message: msg,
-    Created: time.Now().Unix(),
-  }
+func publishMessage(component, typ, msg string) { //DO NOT LOG WITHIN THIS MSG - DEADLOCK
+	pkt := LogMessage{
+		Component: component,
+		Type:      typ,
+		Message:   msg,
+		Created:   time.Now().Unix(),
+	}
 
-  subStructLock.Lock()
-  defer subStructLock.Unlock()
-  for ch, _ := range subscribers {
-    select { //prevents blocking if a channel is full
-      case ch <- pkt:
-      default:
-    }
-  }
+	subStructLock.Lock()
+	defer subStructLock.Unlock()
+	for ch, _ := range subscribers {
+		select { //prevents blocking if a channel is full
+		case ch <- pkt:
+		default:
+		}
+	}
 }
