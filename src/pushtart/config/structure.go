@@ -36,9 +36,9 @@ type User struct {
 
 //Tart stores information for tarts which are stored in the system.
 type Tart struct {
-	PushURL string
-	Name string
-	Owner string
+	PushURL   string
+	Name      string
+	Owner     string
 	IsRunning bool
-	PID int
+	PID       int
 }

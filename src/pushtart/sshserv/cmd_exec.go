@@ -16,7 +16,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func extractPushURL(cmdStr string)string {
+func extractPushURL(cmdStr string) string {
 	return strings.Replace(cmdStr[17:], "'", "", -1)
 }
 

@@ -7,8 +7,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"sync"
 	"pushtart/logging"
+	"sync"
 )
 
 func readConfig(fpath string) (*Config, error) {
@@ -36,7 +36,7 @@ var writeLock sync.Mutex
 func writeConfig() (err error) {
 	writeLock.Lock()
 	writeLock.Unlock()
-	
+
 	data, err := json.MarshalIndent(gConfig, "", "  ")
 	if err != nil {
 		return err
