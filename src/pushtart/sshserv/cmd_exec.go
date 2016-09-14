@@ -3,7 +3,6 @@ package sshserv
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/hex"
 	"io"
 	"os/exec"
 	"path"
@@ -55,7 +54,6 @@ func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 			return
 		}
 
-		//channel.Write(makeGitMsg("Hello there", false))
 		sendExitStatus(channel, 0)
 	} else {
 		logging.Warning("sshserv-exec", "Exec request disallowed: "+cmdStr)
@@ -109,21 +107,4 @@ func runCommandAcrossSSHChannel(cmd *exec.Cmd, channel ssh.Channel) error {
 		return err
 	}
 	return nil
-}
-
-func makeGitMsg(msg string, isError bool) []byte {
-	output := ""
-
-	headerBuf := new(bytes.Buffer)
-	binary.Write(headerBuf, binary.BigEndian, uint16(len(msg)+4+1))
-	output += strings.ToUpper(hex.EncodeToString(headerBuf.Bytes()))
-
-	if isError {
-		output += string([]byte{byte(1)})
-	} else {
-		output += string([]byte{byte(2)})
-	}
-
-	output += msg
-	return []byte(output)
 }

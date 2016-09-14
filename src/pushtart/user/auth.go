@@ -1,12 +1,14 @@
 package user
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"pushtart/config"
 	"pushtart/logging"
 	"pushtart/util"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
+//GetUserPubkey returns the openssh-friendly user public key.
 func GetUserPubkey(username string) string {
 	usrStruct, ok := config.All().Users[username]
 	if !ok {

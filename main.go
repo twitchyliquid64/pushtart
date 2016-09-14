@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 	"pushtart/config"
 	"pushtart/constants"
 	"pushtart/logging"
 	"pushtart/sshserv"
 	"pushtart/sshserv/cmd_registry"
+	"time"
 )
 
 func main() {
@@ -54,17 +54,14 @@ func main() {
 
 		case "import-ssh-key":
 			configInit(params["config"])
-			importSshKey(params, os.Stdout)
+			importSSHKey(params, os.Stdout)
 		}
 	}
 }
 
-
-
-
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration
 // is generated.
-func configInit(configPath string)error{
+func configInit(configPath string) error {
 	var err error
 	if len(os.Args) > 2 {
 		err = config.Load(configPath)
@@ -76,7 +73,6 @@ func configInit(configPath string)error{
 	}
 	return err
 }
-
 
 func generateConfig(configPath string) {
 	var err error

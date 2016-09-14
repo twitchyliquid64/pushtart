@@ -27,9 +27,8 @@ func checkCreateRepo(pushURL string) error {
 			if err != nil {
 				logging.Error("tartmanager-git-hooks", "Error creating repository directory: "+err.Error())
 				return err
-			} else {
-				logging.Info("tartmanager-git-hooks", "Repository directory created.")
 			}
+			logging.Info("tartmanager-git-hooks", "Repository directory created.")
 		}
 
 		cmd := exec.Command("git", "init", "--bare")
@@ -38,9 +37,8 @@ func checkCreateRepo(pushURL string) error {
 		if err != nil {
 			logging.Error("tartmanager-git-hooks", "Error running git init on repository: "+err.Error())
 			return err
-		} else {
-			logging.Info("tartmanager-git-hooks", "Repository directory initialized (--bare is SET).")
 		}
+		logging.Info("tartmanager-git-hooks", "Repository directory initialized (--bare is SET).")
 	} else {
 		logging.Info("tartmanager-git-hooks", "Receiving git push for existing tart: "+pushURL)
 		tart := Get(pushURL)
@@ -59,10 +57,14 @@ func checkCreateRepo(pushURL string) error {
 	return nil
 }
 
+// PreGitRecieve is called by the sshserv package when a git push is recieved. It initializes a new repository if one does not already
+// exist.
 func PreGitRecieve(pushURL string) error {
 	return checkCreateRepo(pushURL)
 }
 
+// PostGitRecieve is called after a successful git push. It erases the old deployment if one exists, deploys the new files,
+// updates (or creates) the tart object, and finally launches the tart.
 func PostGitRecieve(pushURL, owner string) error {
 	if !Exists(pushURL) {
 		logging.Info("tartmanager-git-hooks", "Registering new tart.")
