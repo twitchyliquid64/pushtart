@@ -43,13 +43,10 @@ func checkCreateRepo(pushURL string) error {
 		logging.Info("tartmanager-git-hooks", "Receiving git push for existing tart: "+pushURL)
 		tart := Get(pushURL)
 		if tart.IsRunning {
-			logging.Info("tartmanager-git-hooks", "Tart is currently running. Killing PID ", tart.PID)
-
-			proc, err := os.FindProcess(tart.PID)
+			err := Stop(pushURL)
 			if err != nil {
-				return nil
+				logging.Info("tartmanager-git-hooks", "Failed to stop tart: "+err.Error())
 			}
-			proc.Kill()
 		}
 		return nil
 	}
@@ -89,5 +86,9 @@ func PostGitRecieve(pushURL, owner string) error {
 		logging.Error("tartmanager-git-hooks", "Failed to clone repository to deployment directory: "+err.Error())
 		return err
 	}
-	return nil
+	err = Start(pushURL)
+	if err != nil {
+		logging.Error("tartmanager-git-hooks", "Failed to start tart: "+err.Error())
+	}
+	return err
 }

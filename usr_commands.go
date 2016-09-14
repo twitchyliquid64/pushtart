@@ -55,6 +55,22 @@ func editUser(params map[string]string, w io.Writer) {
 	saveUser(params["username"], usr, params)
 }
 
+func listUser(params map[string]string, w io.Writer) {
+	for username, user := range config.All().Users {
+		fmt.Fprint(w, username+" ("+user.Name+"): [")
+		if user.SSHPubKey != "" {
+			fmt.Fprint(w, " sshkey ")
+		}
+		if user.Password != "" {
+			fmt.Fprint(w, " password ")
+		}
+		if user.Password != "" && user.AllowSSHPassword {
+			fmt.Fprint(w, " password-ssh ")
+		}
+		fmt.Fprintln(w, "]")
+	}
+}
+
 func makeUser(params map[string]string, w io.Writer) {
 	if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart make-user --username <username> [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")

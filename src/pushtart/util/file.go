@@ -38,11 +38,22 @@ func GetFilenameListInFolder(folder, suffix string) ([]string, error) {
 	return output, nil
 }
 
-//DirExists returns true if a directory exists at path.
+//DirExists returns true if a directory exists at the given path.
 func DirExists(path string) (bool, error) {
 	s, err := os.Stat(path)
 	if err == nil {
 		if s.IsDir() {
+			return true, nil
+		}
+	}
+	return false, err
+}
+
+//FileExists returns true if a file exists at the given path.
+func FileExists(path string) (bool, error) {
+	s, err := os.Stat(path)
+	if err == nil {
+		if !s.IsDir() {
 			return true, nil
 		}
 	}
