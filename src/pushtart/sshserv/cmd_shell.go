@@ -100,4 +100,4 @@ func (c *commandOutputRewriter) Write(p []byte) (n int, err error) {
 	return c.Out.Write([]byte(strings.Replace(string(p), "\n", "\r\n", -1)))
 }
 
-var banner = "____            _   _____          _\r\n|  _ \\ _   _ ___| |_|_   _|_ _ _ __| |_\r\n| |_) | | | / __| '_ \\| |/ _` | '__| __|\r\n|  __/| |_| \\__ \\ | | | | (_| | |  | |_\r\n|_|    \\__,_|___/_| |_|_|\\__,_|_|   \\__|\r\nRun 'exit' to exit the shell.\r\n\r\n"
+var banner = "____            _   _____          _\r\n|  _ \\ _   _ ___| |_|_   _|_ _ _ __| |_\r\n| |_) | | | / __| '_ \\| |/ _` | '__| __|\r\n|  __/| |_| \\__ \\ | | | | (_| | |  | |_\r\n|_|    \\__,_|___/_| |_|_|\\__,_|_|   \\__|\r\nRun 'exit' to exit the shell, and 'help' for a list of commands.\r\n\r\n"

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"pushtart/config"
 	"pushtart/constants"
@@ -11,23 +12,29 @@ import (
 	"time"
 )
 
+func help(params map[string]string, w io.Writer) {
+	if w == os.Stdout {
+		fmt.Fprintln(w, "USAGE: pushtart <command> [--config <config file>] [command-specific-arguments...]")
+		fmt.Fprintln(w, "If no config file is specified, config.json will be used.")
+		fmt.Fprintln(w, "SSH server keys, user information, tart status, and other (normally external) information is stored in the config file.")
+		fmt.Fprintln(w, "Commands:")
+		fmt.Fprintln(w, "\trun (Not available from SSH shell)")
+		fmt.Fprintln(w, "\tmake-config (Not available from SSH shell)")
+		fmt.Fprintln(w, "\timport-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>] (Not available from SSH shell)")
+	}
+	fmt.Fprintln(w, "\tmake-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]")
+	fmt.Fprintln(w, "\tedit-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]")
+	fmt.Fprintln(w, "\tls-users")
+	fmt.Fprintln(w, "\tls-tarts")
+	fmt.Fprintln(w, "\tstart-tart --tart <pushURL>")
+	fmt.Fprintln(w, "\tstop-tart --tart <pushURL>")
+	fmt.Fprintln(w, "\tedit-tart --tart <pushURL>[--name <name>] [--set-env \"<name>=<value>\"] [--delete-env <name>]")
+}
+
 func main() {
 
 	if len(os.Args) < 2 {
-		fmt.Println("USAGE: pushtart <command> [command-specific-arguments...]")
-		fmt.Println("If no config file is specified, config.json will be used.")
-		fmt.Println("SSH server keys, user information, tart status, and other (normally external) information is stored in the config file.")
-		fmt.Println("Commands:")
-		fmt.Println("\trun [--config <path-to-configuration-file>]")
-		fmt.Println("\tmake-config [--config <config file> --parameter-name parameter-value ...]")
-		fmt.Println("\tmake-user --username <username [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")
-		fmt.Println("\tedit-user --username <username [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")
-		fmt.Println("\tls-users [--config <config file>]")
-		fmt.Println("\tls-tarts [--config <config file>]")
-		fmt.Println("\tstart-tart --tart <pushURL> [--config <config file>]")
-		fmt.Println("\tstop-tart --tart <pushURL> [--config <config file>]")
-		fmt.Println("\tedit-tart --tart <pushURL> [--config <config file>] [--name <name>] [--set-env <env-name> <env-value>] [--delete-env <env-name>]")
-		fmt.Println("\timport-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>]")
+		help(nil, os.Stdout)
 	} else {
 
 		params := parseCommands(os.Args[2:])
@@ -91,6 +98,7 @@ func registerCommands() {
 	cmd_registry.Register("start-tart", startTart)
 	cmd_registry.Register("stop-tart", stopTart)
 	cmd_registry.Register("edit-tart", editTart)
+	cmd_registry.Register("help", help)
 }
 
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration
