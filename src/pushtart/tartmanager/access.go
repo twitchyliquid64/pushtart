@@ -43,3 +43,12 @@ func New(pushURL, owner string) {
 		PID:       -1,
 	})
 }
+
+//List returns a []string of all the tarts in the system.
+func List() []string {
+	var output []string
+	for pushURL := range config.All().Tarts {
+		output = append(output, pushURL)
+	}
+	return output
+}

@@ -28,3 +28,12 @@ func Save(username string, usr config.User) {
 func New(username string) {
 	Save(username, config.User{})
 }
+
+//List returns a []string of all the users in the system.
+func List() []string {
+	var output []string
+	for username := range config.All().Users {
+		output = append(output, username)
+	}
+	return output
+}
