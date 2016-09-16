@@ -41,4 +41,5 @@ type Tart struct {
 	Owner     string
 	IsRunning bool
 	PID       int
+	Env       []string
 }

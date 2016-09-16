@@ -40,6 +40,9 @@ func Start(pushURL string) error {
 	}
 
 	cmd.Dir = deploymentFolder
+	if tart.Env != nil {
+		cmd.Env = tart.Env
+	}
 	err := cmd.Start()
 	if err != nil {
 		return err
