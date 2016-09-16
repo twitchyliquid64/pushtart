@@ -63,3 +63,23 @@ func findTart(tartName string) (bool, config.Tart) {
 	}
 	return false, config.Tart{}
 }
+
+func editTart(params map[string]string, w io.Writer) {
+	if missingFields := checkHasFields([]string{"tart"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart edit-tart --tart <pushURL> [--name <name>] [--set-env <env-name> <env-value>] [--delete-env <env-name>]")
+		printMissingFields(missingFields, w)
+		return
+	}
+
+	exists, tart := findTart(params["tart"])
+	if !exists {
+		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+
+	if params["name"] != "" {
+		tart.Name = params["name"]
+	}
+
+	tartmanager.Save(tart.PushURL, tart)
+}

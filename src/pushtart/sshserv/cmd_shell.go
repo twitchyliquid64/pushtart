@@ -32,7 +32,7 @@ func shell(conn *ssh.ServerConn, channel ssh.Channel) {
 		}
 
 		if ok, runFunc := cmd_registry.Command(spl[0]); ok {
-			runFunc(util.ParseCommands(spl[1:]), &commandOutputRewriter{Out: term})
+			runFunc(util.ParseCommands(util.TokeniseCommandString(line[len(spl[0]):])), &commandOutputRewriter{Out: term})
 		}
 	}
 }

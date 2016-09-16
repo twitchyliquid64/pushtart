@@ -1,6 +1,11 @@
 package util
 
-import "strings"
+import (
+	"pushtart/logging"
+	"strconv"
+	"strings"
+	"unicode"
+)
 
 //ParseCommands parses the given command strings - for each --<key> value it adds it to the returned map as map[key] = value.
 func ParseCommands(input []string) map[string]string {
@@ -31,4 +36,39 @@ func BestPrefixMatch(inputStr string, options []string) string {
 		return lastMatch
 	}
 	return ""
+}
+
+//TokeniseCommandString takes the given string and parses it into separate string elements, following the same semantics for tokenising command parameters on the unix
+//command line.
+func TokeniseCommandString(input string) []string {
+	lastQuote := rune(0)
+	f := func(c rune) bool {
+		switch {
+		case c == lastQuote:
+			lastQuote = rune(0)
+			return false
+		case lastQuote != rune(0):
+			return false
+		case unicode.In(c, unicode.Quotation_Mark):
+			lastQuote = c
+			return false
+		default:
+			return unicode.IsSpace(c)
+
+		}
+	}
+
+	p := strings.FieldsFunc(input, f)
+	for i := 0; i < len(p); i++ {
+		if strings.HasPrefix(p[i], "\"") && strings.HasSuffix(p[i], "\"") {
+			t, err := strconv.Unquote(p[i])
+			if err == nil {
+				p[i] = t
+			} else {
+				logging.Error("util-cmd-tokenise", err.Error())
+			}
+		}
+	}
+
+	return p
 }

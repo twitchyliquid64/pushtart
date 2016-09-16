@@ -26,6 +26,7 @@ func main() {
 		fmt.Println("\tls-tarts [--config <config file>]")
 		fmt.Println("\tstart-tart --tart <pushURL> [--config <config file>]")
 		fmt.Println("\tstop-tart --tart <pushURL> [--config <config file>]")
+		fmt.Println("\tedit-tart --tart <pushURL> [--config <config file>] [--name <name>] [--set-env <env-name> <env-value>] [--delete-env <env-name>]")
 		fmt.Println("\timport-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>]")
 	} else {
 
@@ -71,6 +72,10 @@ func main() {
 			configInit(params["config"])
 			stopTart(params, os.Stdout)
 
+		case "edit-tart":
+			configInit(params["config"])
+			editTart(params, os.Stdout)
+
 		case "import-ssh-key":
 			configInit(params["config"])
 			importSSHKey(params, os.Stdout)
@@ -85,6 +90,7 @@ func registerCommands() {
 	cmd_registry.Register("ls-tarts", listTarts)
 	cmd_registry.Register("start-tart", startTart)
 	cmd_registry.Register("stop-tart", stopTart)
+	cmd_registry.Register("edit-tart", editTart)
 }
 
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration
