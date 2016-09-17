@@ -89,7 +89,7 @@ var commandParams = map[string][]string{
 	"make-user":  []string{"--username", "--password", "--name", "--allow-ssh-password"},
 	"start-tart": []string{"--tart"},
 	"stop-tart":  []string{"--tart"},
-	"edit-tart":  []string{"--tart", "--name", "--set-env", "--delete-env"},
+	"edit-tart":  []string{"--tart", "--name", "--set-env", "--delete-env", "--log-stdout"},
 }
 
 type commandOutputRewriter struct {

@@ -13,10 +13,17 @@ func listTarts(params map[string]string, w io.Writer) {
 	for pushURL, tart := range config.All().Tarts {
 		fmt.Fprint(w, tart.Name+" ("+pushURL+"): ")
 		if tart.IsRunning {
-			fmt.Fprintln(w, "Running (PID "+strconv.Itoa(tart.PID)+")")
+			fmt.Fprint(w, "Running (PID "+strconv.Itoa(tart.PID)+") ")
 		} else {
-			fmt.Fprintln(w, "Stopped.")
+			fmt.Fprint(w, "Stopped. ")
 		}
+
+		if tart.LogStdout {
+			fmt.Fprintln(w, "[Stdout -> Log is ENABLED]")
+		} else {
+			fmt.Fprintln(w, "[Stdout -> Log is disabled]")
+		}
+
 		if len(tart.Env) > 0 {
 			for _, env := range tart.Env {
 				fmt.Fprintln(w, "\t"+env)
