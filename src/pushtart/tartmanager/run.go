@@ -43,7 +43,14 @@ func Start(pushURL string) error {
 	if tart.Env != nil {
 		cmd.Env = tart.Env
 	}
-	err := cmd.Start()
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	go tartLogRoutine(tart, stdout)
+
+	err = cmd.Start()
 	if err != nil {
 		return err
 	}

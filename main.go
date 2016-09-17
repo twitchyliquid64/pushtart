@@ -28,7 +28,7 @@ func help(params map[string]string, w io.Writer) {
 	fmt.Fprintln(w, "\tls-tarts")
 	fmt.Fprintln(w, "\tstart-tart --tart <pushURL>")
 	fmt.Fprintln(w, "\tstop-tart --tart <pushURL>")
-	fmt.Fprintln(w, "\tedit-tart --tart <pushURL>[--name <name>] [--set-env \"<name>=<value>\"] [--delete-env <name>]")
+	fmt.Fprintln(w, "\tedit-tart --tart <pushURL>[--name <name>] [--set-env \"<name>=<value>\"] [--delete-env <name>] [--log-stdout yes/no]")
 }
 
 func main() {

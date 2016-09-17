@@ -73,7 +73,7 @@ func findTart(tartName string) (bool, config.Tart) {
 
 func editTart(params map[string]string, w io.Writer) {
 	if missingFields := checkHasFields([]string{"tart"}, params); len(missingFields) > 0 {
-		fmt.Fprintln(w, "USAGE: pushtart edit-tart --tart <pushURL> [--name <name>] [--set-env \"<env-name>=<env-value>\"] [--delete-env <env-name>]")
+		fmt.Fprintln(w, "USAGE: pushtart edit-tart --tart <pushURL> [--name <name>] [--set-env \"<env-name>=<env-value>\"] [--delete-env <env-name>] [--log-stdout yes/no]")
 		printMissingFields(missingFields, w)
 		return
 	}
@@ -94,6 +94,14 @@ func editTart(params map[string]string, w io.Writer) {
 
 	if params["delete-env"] != "" {
 		tart.Env = setEnv(tart.Env, "", params["delete-env"])
+	}
+
+	if params["log-stdout"] != "" {
+		if strings.ToLower(params["log-stdout"]) == "yes" {
+			tart.LogStdout = true
+		} else {
+			tart.LogStdout = false
+		}
 	}
 
 	tartmanager.Save(tart.PushURL, tart)

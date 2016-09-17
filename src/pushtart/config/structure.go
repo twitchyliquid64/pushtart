@@ -40,6 +40,7 @@ type Tart struct {
 	Name      string
 	Owner     string
 	IsRunning bool
+	LogStdout bool
 	PID       int
 	Env       []string
 }
