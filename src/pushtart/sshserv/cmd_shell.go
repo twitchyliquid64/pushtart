@@ -85,11 +85,12 @@ func autocomplete(line string, pos int, key rune) (newLine string, newPos int, o
 }
 
 var commandParams = map[string][]string{
-	"edit-user":  []string{"--username", "--password", "--name", "--allow-ssh-password"},
-	"make-user":  []string{"--username", "--password", "--name", "--allow-ssh-password"},
-	"start-tart": []string{"--tart"},
-	"stop-tart":  []string{"--tart"},
-	"edit-tart":  []string{"--tart", "--name", "--set-env", "--delete-env", "--log-stdout"},
+	"edit-user":         []string{"--username", "--password", "--name", "--allow-ssh-password"},
+	"make-user":         []string{"--username", "--password", "--name", "--allow-ssh-password"},
+	"start-tart":        []string{"--tart"},
+	"stop-tart":         []string{"--tart"},
+	"edit-tart":         []string{"--tart", "--name", "--set-env", "--delete-env", "--log-stdout"},
+	"tart-restart-mode": []string{"--tart", "--enabled", "--lull-period"},
 }
 
 type commandOutputRewriter struct {

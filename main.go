@@ -18,8 +18,8 @@ func help(params map[string]string, w io.Writer) {
 		fmt.Fprintln(w, "If no config file is specified, config.json will be used.")
 		fmt.Fprintln(w, "SSH server keys, user information, tart status, and other (normally external) information is stored in the config file.")
 		fmt.Fprintln(w, "Commands:")
-		fmt.Fprintln(w, "\trun (Not available from SSH shell)")
-		fmt.Fprintln(w, "\tmake-config (Not available from SSH shell)")
+		fmt.Fprintln(w, "\trun")
+		fmt.Fprintln(w, "\tmake-config")
 		fmt.Fprintln(w, "\timport-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>] (Not available from SSH shell)")
 	}
 	fmt.Fprintln(w, "\tmake-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]")
