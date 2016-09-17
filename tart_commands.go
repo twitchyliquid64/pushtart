@@ -114,6 +114,38 @@ func editTart(params map[string]string, w io.Writer) {
 	tartmanager.Save(tart.PushURL, tart)
 }
 
+func tartRestartMode(params map[string]string, w io.Writer) {
+	if missingFields := checkHasFields([]string{"tart", "enabled"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart tart-restart-mode --tart <pushURL> --enabled yes/no [--lull-period <seconds>]")
+		printMissingFields(missingFields, w)
+		return
+	}
+
+	exists, tart := findTart(params["tart"])
+	if !exists {
+		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+
+	if strings.ToLower(params["enabled"]) == "yes" {
+		tart.RestartOnStop = true
+	} else {
+		tart.RestartOnStop = false
+	}
+
+	if params["lull-period"] != "" {
+		i, err := strconv.Atoi(params["lull-period"])
+		if err != nil {
+			fmt.Fprintln(w, "Err: could not read value for lull-period. Did you provide an integer?")
+			fmt.Fprintln(w, "Aborting.")
+			return
+		}
+		tart.RestartDelaySecs = i
+	}
+
+	tartmanager.Save(tart.PushURL, tart)
+}
+
 func setEnv(envList []string, envString, delString string) []string {
 	key := strings.Split(envString, "=")[0]
 	var output []string

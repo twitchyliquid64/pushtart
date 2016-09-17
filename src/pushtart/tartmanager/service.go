@@ -5,6 +5,7 @@ import (
 	"pushtart/config"
 	"pushtart/logging"
 	"strings"
+	"time"
 )
 
 func tartLogRoutine(tart config.Tart, reader io.ReadCloser) {
@@ -19,9 +20,19 @@ func tartLogRoutine(tart config.Tart, reader io.ReadCloser) {
 			logging.Info("tartmanager-service", tart.Name+" is shutting down.")
 
 			tart = Get(tart.PushURL)
+
+			if tart.RestartOnStop {
+				time.Sleep(time.Duration(tart.RestartDelaySecs) * time.Second)
+				tart = Get(tart.PushURL)
+			}
+
 			tart.IsRunning = false
 			tart.PID = -1
 			Save(tart.PushURL, tart)
+			if tart.RestartOnStop {
+				logging.Info("tartmanager-service", tart.Name+" is restarting.")
+				Start(tart.PushURL)
+			}
 
 			break
 		}

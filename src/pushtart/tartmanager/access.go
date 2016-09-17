@@ -36,11 +36,13 @@ func Save(pushURL string, tart config.Tart) {
 //New creates a new (empty) tart with the given pushURL and owner.
 func New(pushURL, owner string) {
 	Save(pushURL, config.Tart{
-		Name:      pushURL,
-		PushURL:   pushURL,
-		IsRunning: false,
-		Owner:     owner,
-		PID:       -1,
+		Name:             pushURL,
+		PushURL:          pushURL,
+		IsRunning:        false,
+		Owner:            owner,
+		PID:              -1,
+		RestartDelaySecs: 30,
+		RestartOnStop:    false,
 	})
 }
 
