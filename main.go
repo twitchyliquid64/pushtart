@@ -29,6 +29,9 @@ func help(params map[string]string, w io.Writer) {
 	fmt.Fprintln(w, "\tstart-tart --tart <pushURL>")
 	fmt.Fprintln(w, "\tstop-tart --tart <pushURL>")
 	fmt.Fprintln(w, "\tedit-tart --tart <pushURL>[--name <name>] [--set-env \"<name>=<value>\"] [--delete-env <name>] [--log-stdout yes/no]")
+	if w != os.Stdout {
+		fmt.Fprintln(w, "\tlogs")
+	}
 }
 
 func main() {
@@ -99,6 +102,7 @@ func registerCommands() {
 	cmd_registry.Register("stop-tart", stopTart)
 	cmd_registry.Register("edit-tart", editTart)
 	cmd_registry.Register("help", help)
+	cmd_registry.Register("logs", logMsgs)
 }
 
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration

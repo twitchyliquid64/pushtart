@@ -8,7 +8,7 @@ import (
 
 //implements a small history of log messages
 
-const defaultBacklogSize = 15
+const defaultBacklogSize = 25
 
 var backlog *ring.Ring
 
