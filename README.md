@@ -42,6 +42,10 @@ Most sane people prefer to use SSH keys instead of passwords. To setup a key wit
 
 `./pushtart import-ssh-key --username <insert-pushtart-username-here> --pub-key-file ~/.ssh/id_rsa.pub `
 
+If you need to add a user's SSH key when the server is running try this while logged into that computer as that user:
+
+`cat ~/.ssh/id_rsa.pub | ssh <put-server-address-here> -p 2022 import-ssh-key --username <put-username-here>`
+
 #### Terminology
 
 Everything makes sense, except I decided to call a repository in pushtart a 'tart' :). Tarts can be in running or stopped states - this is all controllable through commands.
@@ -68,6 +72,6 @@ Commands:
 ### TODO
 
  - [ ] Lock configuration file (.lock file? when pushtart is running)
- - [ ] Implement way to load a users ssh key when the server is running
+ - [x] Implement way to load a users ssh key when the server is running
  - [ ] Implement access controls to prevent different users from touching tarts they didnt create
- - [ ] Logging to file / console?
+ - [x] Logging to file / console?

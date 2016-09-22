@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"encoding/binary"
 	"io"
+	"io/ioutil"
 	"os/exec"
 	"path"
 	"pushtart/config"
 	"pushtart/logging"
 	"pushtart/tartmanager"
+	"pushtart/user"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -55,10 +58,42 @@ func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 		}
 
 		sendExitStatus(channel, 0)
+	} else if strings.HasPrefix(cmdStr, "import-ssh-key ") {
+
+		runImportSSHKey(channel, conn, cmdStr)
+
 	} else {
 		logging.Warning("sshserv-exec", "Exec request disallowed: "+cmdStr)
-		channel.Write([]byte("Invalid command - are you using git push?"))
+		channel.Write([]byte("Invalid command - are you using git push?\r\n"))
 	}
+}
+
+func runImportSSHKey(channel ssh.Channel, conn *ssh.ServerConn, cmdStr string) {
+	spl := strings.Split(cmdStr, " ")
+	if len(spl) < 3 || spl[1] != "--username" {
+		channel.Write([]byte("USAGE: import-ssh-key --username <username>\r\n"))
+		return
+	}
+
+	d, err := ioutil.ReadAll(channel)
+	if err != nil {
+		logging.Error("sshserv-exec-importssh", "Read err: "+err.Error())
+		channel.Write([]byte("ERR: read error." + err.Error() + ".\r\nAbort.\r\n"))
+		return
+	}
+
+	channel.Write([]byte("Read " + strconv.Itoa(len(d)) + " bytes from input.\r\n"))
+
+	if !user.Exists(spl[2]) {
+		logging.Error("sshserv-exec-importssh", "User not found: "+spl[2])
+		channel.Write([]byte("ERR: user (" + spl[2] + ") not found.\r\nAbort.\r\n"))
+		return
+	}
+
+	usr := user.Get(spl[2])
+	usr.SSHPubKey = string(d)
+	user.Save(spl[2], usr)
+	channel.Write([]byte("SSH for " + spl[2] + " saved successfully.\r\n"))
 }
 
 func sendExitStatus(channel ssh.Channel, code int) {
