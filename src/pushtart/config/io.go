@@ -8,10 +8,20 @@ import (
 	"io/ioutil"
 	"os"
 	"pushtart/logging"
+	"pushtart/util"
+	"strconv"
 	"sync"
 )
 
+// ErrLockfileExists is returned if a Load() is called for a path which is locked by another process.
+var ErrLockfileExists = errors.New("Lockfile exists")
+var lockFilePath = ""
+
 func readConfig(fpath string) (*Config, error) {
+	if err := getConfigLockStatus(fpath); err != nil {
+		return nil, err
+	}
+
 	var m = &Config{}
 
 	confF, err := os.Open(fpath)
@@ -28,22 +38,74 @@ func readConfig(fpath string) (*Config, error) {
 		return nil, errors.New("Failed to decode config: " + err.Error())
 	}
 	m.Path = fpath
-	return m, nil
+	return m, lockConfig(fpath)
+}
+
+func lockConfig(fpath string) error {
+	d := strconv.Itoa(os.Getpid())
+	err := ioutil.WriteFile(fpath+".lock", []byte(d), 0700)
+	if err != nil {
+		logging.Error("config", "Failed to write lockfile: "+err.Error())
+	} else {
+		lockFilePath = fpath + ".lock"
+	}
+	return err
+}
+
+// UnlockConfig should be called as the process is shutting down to allow other processes to read the configuration.
+func UnlockConfig() {
+	if lockFilePath != "" {
+		err := os.Remove(lockFilePath)
+		if err != nil {
+			logging.Error("config", "Failed to delete lockfile: "+err.Error())
+		}
+	}
+}
+
+func getConfigLockStatus(fpath string) error {
+	fpath = fpath + ".lock"
+	var exists bool
+	var err error
+	if exists, err = util.FileExists(fpath); !exists {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	d, err := ioutil.ReadFile(fpath)
+	if err != nil {
+		return err
+	}
+
+	pid, convErr := strconv.Atoi(string(d))
+	if convErr != nil {
+		logging.Error("config", "Failed to parse contents of lock file - are they integer? Length = "+strconv.Itoa(len(d)))
+		return convErr
+	}
+
+	if os.Getpid() == pid {
+		return nil
+	}
+	return ErrLockfileExists
 }
 
 var writeLock sync.Mutex
 
 func writeConfig() (err error) {
 	writeLock.Lock()
-	writeLock.Unlock()
+	defer writeLock.Unlock()
+	//logging.Info("config-write", "Now writing to: "+gConfig.Path)
 
 	data, err := json.MarshalIndent(gConfig, "", "  ")
 	if err != nil {
+		logging.Info("config-write", "Serialization error: "+err.Error())
 		return err
 	}
 
 	err = ioutil.WriteFile(gConfig.Path, data, 0755)
 	if err != nil {
+		logging.Error("config-write", "Error saving configuration: "+err.Error())
 		return err
 	}
 	return nil

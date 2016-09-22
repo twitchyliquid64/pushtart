@@ -4,5 +4,6 @@ gitdata/
 deploymentdata/
 build.sh
 config.json
+config.json.lock
 ./pushtart
 pushtart.exe

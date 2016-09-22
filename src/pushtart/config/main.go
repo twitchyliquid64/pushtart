@@ -14,7 +14,7 @@ func Load(fpath string) error {
 	if err == nil {
 		gConfig = conf
 	} else {
-		logging.Error("config", "config.Load() error:", err)
+		logging.Error("config", "config.Load() error: ", err)
 		return err
 	}
 

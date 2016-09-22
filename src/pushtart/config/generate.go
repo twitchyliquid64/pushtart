@@ -53,6 +53,7 @@ func Generate(fpath string) (err error) {
 		}
 	}
 
+	lockConfig(gConfig.Path)
 	return writeConfig()
 }
 

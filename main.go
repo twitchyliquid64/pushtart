@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"pushtart/config"
-	"pushtart/constants"
 	"pushtart/logging"
 	"pushtart/sshserv"
 	"pushtart/sshserv/cmd_registry"
-	"time"
+	"pushtart/util"
+	"syscall"
 )
 
 func help(params map[string]string, w io.Writer) {
@@ -36,6 +37,7 @@ func help(params map[string]string, w io.Writer) {
 }
 
 func main() {
+	defer config.UnlockConfig() //Only unlocks if a config was successfully locked
 
 	if len(os.Args) < 2 {
 		help(nil, os.Stdout)
@@ -45,16 +47,19 @@ func main() {
 		switch os.Args[1] {
 		case "run":
 			var err error
-			logging.Info("init", "Starting in runmode")
+			logging.Info("main", "Starting in runmode")
 			configInit(params["config"])
 			registerCommands()
 			err = sshserv.Init()
 			if err != nil {
-				logging.Error("init-sshServ", err.Error())
+				logging.Error("main-sshserv", err.Error())
 			}
-			for {
-				time.Sleep(1 * time.Second)
-			}
+
+			c := make(chan os.Signal, 2)
+			signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+			<-c
+			fmt.Println("")
+			logging.Info("main", "Recieved Interrupt, shutting down")
 
 		case "make-config":
 			generateConfig(params["config"])
@@ -115,24 +120,25 @@ func registerCommands() {
 // is generated.
 func configInit(configPath string) error {
 	var err error
-	if len(os.Args) > 2 {
-		err = config.Load(configPath)
-	} else {
-		err = config.Load(constants.DefaultConfigFileName)
+	err = config.Load(configPath)
+
+	if err == config.ErrLockfileExists {
+		fmt.Println("Lock exists for another process (" + configPath + ".lock)")
+		os.Exit(1)
 	}
-	if err != nil {
+
+	exists, _ := util.FileExists(configPath)
+	if err != nil && !exists {
 		generateConfig(configPath)
+	} else if err != nil {
+		logging.Fatal("init", "Please review the configuration file for errors, and consider deleting it if you would like an empty one generated on next start.")
 	}
 	return err
 }
 
 func generateConfig(configPath string) {
-	var err error
-	if len(os.Args) > 2 {
-		err = config.Generate(configPath)
-	} else {
-		err = config.Generate(constants.DefaultConfigFileName)
-	}
+	err := config.Generate(configPath)
+
 	if err != nil {
 		logging.Error("init-generateConfig", err.Error())
 	}
