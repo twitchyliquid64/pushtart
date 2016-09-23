@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"pushtart/config"
+	"pushtart/dnsserv"
 	"pushtart/logging"
 	"pushtart/sshserv"
 	"pushtart/sshserv/cmd_registry"
@@ -54,6 +55,7 @@ func main() {
 			if err != nil {
 				logging.Error("main-sshserv", err.Error())
 			}
+			dnsserv.Init()
 
 			c := make(chan os.Signal, 2)
 			signal.Notify(c, os.Interrupt, syscall.SIGTERM)

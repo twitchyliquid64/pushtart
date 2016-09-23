@@ -32,7 +32,7 @@ func Generate(fpath string) (err error) {
 	}
 
 	if gConfig.SSH.Listener == "" {
-		gConfig.SSH.Listener = "0.0.0.0:2022"
+		gConfig.SSH.Listener = ":2022"
 	}
 
 	if gConfig.DataPath == "" {
@@ -51,6 +51,12 @@ func Generate(fpath string) (err error) {
 			logging.Info("config-generate", "Creating directory for deployments: "+gConfig.DeploymentPath)
 			os.Mkdir(gConfig.DeploymentPath, 0777)
 		}
+	}
+
+	if gConfig.DNS.Listener == "" {
+		gConfig.DNS.Listener = ":53"
+		gConfig.DNS.AllowForwarding = false
+		gConfig.DNS.Enabled = false
 	}
 
 	lockConfig(gConfig.Path)

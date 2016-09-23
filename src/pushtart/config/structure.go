@@ -22,8 +22,21 @@ type Config struct {
 		Listener string
 	}
 
+	DNS struct {
+		Enabled         bool
+		Listener        string
+		AllowForwarding bool
+		ARecord         map[string]ARecord
+	}
+
 	Users map[string]User
 	Tarts map[string]Tart
+}
+
+//ARecord represents a response that could be served to a DNS query of type A.
+type ARecord struct {
+	Address string
+	TTL     uint32
 }
 
 //User represents an account which has access to the system.

@@ -80,3 +80,4 @@ Commands:
  - [ ] Implement a config file in the tart to allow it to specify its own config
  - [ ] Refactor sshserv/cmd_exec to abstract out specific commands or at least make the main method more readable.
  - [ ] Mechanism to set normal config parameters from the commandline (using reflection?)
+ - [ ] Prevent tart management commands for tarts a user doesnt own

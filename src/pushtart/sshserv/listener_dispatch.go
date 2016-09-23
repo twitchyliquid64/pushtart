@@ -18,6 +18,7 @@ func startListener() error {
 	if err != nil {
 		return err
 	}
+	logging.Info("sshserv-init", "Started")
 
 	go func() {
 		for { // accept routine
