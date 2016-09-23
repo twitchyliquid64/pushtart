@@ -37,7 +37,7 @@ func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 	}()
 
 	if strings.HasPrefix(cmdStr, "git-receive-pack") {
-		err := tartmanager.PreGitRecieve(extractPushURL(cmdStr))
+		err := tartmanager.PreGitRecieve(extractPushURL(cmdStr), conn.User())
 		if err != nil { //err is already logged.
 			sendExitStatus(channel, 1)
 			return

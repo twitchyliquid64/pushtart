@@ -1,6 +1,7 @@
 package tartmanager
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"path"
@@ -9,6 +10,9 @@ import (
 	"pushtart/util"
 )
 
+// ErrTartOperationNotAuthorized is returned if the pushing user is not allowed to perform that action.
+var ErrTartOperationNotAuthorized = errors.New("You are not authorized to perform the requested action.")
+
 func getRepoPath(pushURL string) string {
 	return path.Join(config.All().DataPath, pushURL)
 }
@@ -16,7 +20,7 @@ func getDeploymentPath(pushURL string) string {
 	return path.Join(config.All().DeploymentPath, pushURL)
 }
 
-func checkCreateRepo(pushURL string) error {
+func checkCreateRepo(pushURL, owner string) error {
 	repoPath := getRepoPath(pushURL)
 
 	if tartExists := Exists(pushURL); !tartExists {
@@ -42,6 +46,12 @@ func checkCreateRepo(pushURL string) error {
 	} else {
 		logging.Info("tartmanager-git-hooks", "Receiving git push for existing tart: "+pushURL)
 		tart := Get(pushURL)
+
+		if tart.Owner != owner {
+			logging.Warning("tartmanager-git-hooks", "Aborting git-recieve for tart '"+pushURL+"'. Pushing user is not the owner of the tart.")
+			return ErrTartOperationNotAuthorized
+		}
+
 		if tart.IsRunning {
 			err := Stop(pushURL)
 			if err != nil {
@@ -56,8 +66,8 @@ func checkCreateRepo(pushURL string) error {
 
 // PreGitRecieve is called by the sshserv package when a git push is recieved. It initializes a new repository if one does not already
 // exist.
-func PreGitRecieve(pushURL string) error {
-	return checkCreateRepo(pushURL)
+func PreGitRecieve(pushURL, owner string) error {
+	return checkCreateRepo(pushURL, owner)
 }
 
 // PostGitRecieve is called after a successful git push. It erases the old deployment if one exists, deploys the new files,
