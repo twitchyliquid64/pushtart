@@ -14,13 +14,13 @@ func sanitizeDomain(in string) string {
 	return in
 }
 
-func makeMXAnswer(name, answerDomain string, TTL uint32) dns.RR {
+func makeMXAnswer(name, answerDomain string, Pref uint16, TTL uint32) dns.RR {
 	name = sanitizeDomain(name)
 	answerDomain = sanitizeDomain(answerDomain)
 
 	r := new(dns.MX)
 	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeMX, Class: dns.ClassINET, Ttl: TTL}
-	r.Preference = 10
+	r.Preference = Pref
 	r.Mx = answerDomain
 	return r
 }
@@ -31,5 +31,42 @@ func makeAAnswer(name, addr string, TTL uint32) dns.RR {
 	r := new(dns.A)
 	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeA, Class: dns.ClassINET, Ttl: TTL}
 	r.A = net.ParseIP(addr)
+	return r
+}
+
+//TODO: Rename to someone less retarded
+func makeAAAAAnswer(name, addr string, TTL uint32) dns.RR {
+	name = sanitizeDomain(name)
+
+	r := new(dns.AAAA)
+	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeAAAA, Class: dns.ClassINET, Ttl: TTL}
+	r.AAAA = net.ParseIP(addr)
+	return r
+}
+
+func makeNSAnswer(name, host string, TTL uint32) dns.RR {
+	name = sanitizeDomain(name)
+
+	r := new(dns.NS)
+	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeNS, Class: dns.ClassINET, Ttl: TTL}
+	r.Ns = host
+	return r
+}
+
+func makeTXTAnswer(name, txt string, TTL uint32) dns.RR {
+	name = sanitizeDomain(name)
+
+	r := new(dns.TXT)
+	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeTXT, Class: dns.ClassINET, Ttl: TTL}
+	r.Txt = []string{txt}
+	return r
+}
+
+func makeCNAMEAnswer(name, names string, TTL uint32) dns.RR {
+	name = sanitizeDomain(name)
+
+	r := new(dns.CNAME)
+	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeCNAME, Class: dns.ClassINET, Ttl: TTL}
+	r.Target = names
 	return r
 }

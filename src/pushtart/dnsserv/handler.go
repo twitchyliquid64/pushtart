@@ -2,7 +2,6 @@ package dnsserv
 
 import (
 	"errors"
-	"net"
 	"pushtart/config"
 	"pushtart/logging"
 
@@ -12,39 +11,55 @@ import (
 //ErrRecordDoesNotExist is returned if a request is made without forwarding enabled and we have no record of it.
 var ErrRecordDoesNotExist = errors.New("No authority for record")
 
-func getRecordIfSpecifiedA(domain string) (dns.RR, error) {
+func getRecordIfSpecifiedA(domain string) ([]dns.RR, error) {
 	sDomain := sanitizeDomain(domain)
 	if config.All().DNS.ARecord == nil {
 		return nil, ErrRecordDoesNotExist
 	}
 	if out, ok := config.All().DNS.ARecord[sDomain]; ok {
-		return makeAAnswer(domain, out.Address, out.TTL), nil
+		return []dns.RR{makeAAnswer(domain, out.Address, out.TTL)}, nil
+	}
+	return nil, ErrRecordDoesNotExist
+}
+func getRecordIfSpecifiedAAAA(domain string) ([]dns.RR, error) {
+	sDomain := sanitizeDomain(domain)
+	if config.All().DNS.AAAARecord == nil {
+		return nil, ErrRecordDoesNotExist
+	}
+	if out, ok := config.All().DNS.AAAARecord[sDomain]; ok {
+		return []dns.RR{makeAAAAAnswer(domain, out.Address, out.TTL)}, nil
 	}
 	return nil, ErrRecordDoesNotExist
 }
 
-func queryA(domain string) (dns.RR, error) {
-	ips, err := net.LookupIP(domain)
-	if err != nil {
-		logging.Warning("dnsserv-main", "Lookup failure (A): "+err.Error())
-		return nil, err
-	}
-	for _, ip := range ips {
-		if ip.To4() == nil {
-			continue
-		}
-		return makeAAnswer(domain, ip.To4().String(), 3600), nil
-	}
-	return nil, errors.New("No A records for given query")
-}
-
-func getRecord(q dns.Question) (rr dns.RR, err error) {
+func getRecord(q dns.Question) (rr []dns.RR, err error) {
 	logging.Info("dnsserv-main", "Recieved query for "+q.Name)
 	switch q.Qtype {
 	case dns.TypeA:
 		rr, err = getRecordIfSpecifiedA(q.Name)
 		if err != nil && config.All().DNS.AllowForwarding {
 			rr, err = queryA(q.Name)
+		}
+	case dns.TypeAAAA:
+		rr, err = getRecordIfSpecifiedAAAA(q.Name)
+		if err != nil && config.All().DNS.AllowForwarding {
+			rr, err = queryAAAA(q.Name)
+		}
+	case dns.TypeNS:
+		if config.All().DNS.AllowForwarding {
+			rr, err = queryNS(q.Name)
+		}
+	case dns.TypeMX:
+		if config.All().DNS.AllowForwarding {
+			rr, err = queryMX(q.Name)
+		}
+	case dns.TypeTXT:
+		if config.All().DNS.AllowForwarding {
+			rr, err = queryTXT(q.Name)
+		}
+	case dns.TypeCNAME:
+		if config.All().DNS.AllowForwarding {
+			rr, err = queryCNAME(q.Name)
 		}
 	}
 	return rr, err
@@ -58,10 +73,11 @@ func parseQuery(m *dns.Msg) {
 			if resultRR == nil {
 				continue
 			}
-			rr = resultRR.(dns.RR)
-			logging.Info("dnsserv-debug", rr.String())
-			if rr.Header().Name == q.Name {
-				m.Answer = append(m.Answer, rr)
+			for _, rr = range resultRR {
+				logging.Info("dnsserv-debug", rr.String())
+				if rr.Header().Name == q.Name {
+					m.Answer = append(m.Answer, rr)
+				}
 			}
 		}
 	}

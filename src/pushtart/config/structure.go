@@ -26,7 +26,9 @@ type Config struct {
 		Enabled         bool
 		Listener        string
 		AllowForwarding bool
+		LookupCacheSize int
 		ARecord         map[string]ARecord
+		AAAARecord      map[string]ARecord
 	}
 
 	Users map[string]User

@@ -26,6 +26,12 @@ func start() {
 // Init is called by the main function to start the server - server will not be started if the DNS subsystem is disabled in configuration.
 func Init() {
 	if config.All().DNS.Enabled {
+
+		err := initCache()
+		if err != nil {
+			logging.Error("dnsserv-init", "Error initializing Lookup Cache: "+err.Error())
+		}
+
 		go start()
 	} else {
 		logging.Info("dnsserv-init", "DNS is disabled - skipping init")

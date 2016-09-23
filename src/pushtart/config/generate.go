@@ -57,6 +57,7 @@ func Generate(fpath string) (err error) {
 		gConfig.DNS.Listener = ":53"
 		gConfig.DNS.AllowForwarding = false
 		gConfig.DNS.Enabled = false
+		gConfig.DNS.LookupCacheSize = 550
 	}
 
 	lockConfig(gConfig.Path)
