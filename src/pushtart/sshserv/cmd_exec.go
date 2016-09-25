@@ -3,6 +3,7 @@ package sshserv
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os/exec"
@@ -14,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -59,12 +61,33 @@ func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 
 		sendExitStatus(channel, 0)
 	} else if strings.HasPrefix(cmdStr, "import-ssh-key ") {
-
 		runImportSSHKey(channel, conn, cmdStr)
-
+	} else if cmdStr == "logs" {
+		runLog(channel, conn, cmdStr)
 	} else {
 		logging.Warning("sshserv-exec", "Exec request disallowed: "+cmdStr)
 		channel.Write([]byte("Invalid command - are you using git push?\r\n"))
+	}
+}
+
+func runLog(channel ssh.Channel, conn *ssh.ServerConn, cmdStr string) {
+	bklog := logging.GetBacklog()
+	for _, msg := range bklog {
+		_, err := fmt.Fprintln(channel, time.Unix(msg.Created, 0).Format(time.ANSIC), "["+msg.Component+"]", msg.Message)
+		if err != nil {
+			return
+		}
+	}
+
+	in := make(chan logging.LogMessage, 2)
+	logging.Subscribe(in)
+	defer logging.Unsubscribe(in)
+
+	for msg := range in {
+		_, err := fmt.Fprintln(channel, time.Unix(msg.Created, 0).Format(time.ANSIC), "["+msg.Component+"]", msg.Message)
+		if err != nil {
+			return
+		}
 	}
 }
 

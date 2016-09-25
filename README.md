@@ -86,7 +86,7 @@ DNSServ can also act as an upstream (caching) DNS server - That way you can use 
 #### Managing records manually
 
 ```
-./pushtart extension --extension DNSServ --operation add-record --type A --domain crap.com --address 192.168.1.1 --ttl 100
+./pushtart extension --extension DNSServ --operation set-record --type A --domain crap.com --address 192.168.1.1 --ttl 100
 ./pushtart extension --extension DNSServ --operation delete-record --domain crap.com
 ```
 
@@ -96,10 +96,9 @@ DNSServ can also act as an upstream (caching) DNS server - That way you can use 
  - [x] Lock configuration file (.lock file? when pushtart is running)
  - [x] Implement way to load a users ssh key when the server is running
  - [x] Implement access controls to prevent different users from touching tarts they didnt create
- - [x] Logging to file / console?
- - [ ] Implement a live log using `ssh <server> log`
+ - [x] Logging tart output to console
+ - [x] Implement a live log using `ssh <server> logs`
  - [x] Implement a basic DNSserv extension to allow referencing tarts cleanly - maybe even make it a caching DNS server?
  - [ ] Implement a config file in the tart to allow it to specify its own config
- - [ ] Refactor sshserv/cmd_exec to abstract out specific commands or at least make the main method more readable.
  - [ ] Mechanism to set normal config parameters from the commandline (using reflection?)
  - [ ] Prevent tart management commands for tarts a user doesnt own

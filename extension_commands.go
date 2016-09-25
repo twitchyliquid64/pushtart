@@ -35,9 +35,9 @@ func listDnsservOptions(w io.Writer) {
 }
 
 func dnsservCommand(params map[string]string, w io.Writer) {
-	if params["operation"] == "add-record" {
+	if params["operation"] == "set-record" {
 		if missingFields := checkHasFields([]string{"extension", "operation", "type", "domain", "address", "ttl"}, params); len(missingFields) > 0 {
-			fmt.Fprintln(w, "USAGE: pushtart extension --extension DNSServ --operation add-record --type <DNS-record-type> --domain <domain> --address <ip-address> --ttl <expiry-seconds>")
+			fmt.Fprintln(w, "USAGE: pushtart extension --extension DNSServ --operation set-record --type <DNS-record-type> --domain <domain> --address <ip-address> --ttl <expiry-seconds>")
 			printMissingFields(missingFields, w)
 			return
 		}
@@ -64,7 +64,7 @@ func dnsservCommand(params map[string]string, w io.Writer) {
 	if params["operation"] == "disable-recursion" {
 		config.All().DNS.AllowForwarding = false
 	}
-	if params["operation"] == "add-record" {
+	if params["operation"] == "set-record" {
 		if strings.ToUpper(params["type"]) == "A" {
 			if config.All().DNS.ARecord == nil {
 				config.All().DNS.ARecord = map[string]config.ARecord{}
