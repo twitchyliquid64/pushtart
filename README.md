@@ -69,6 +69,20 @@ Commands:
 	edit-tart --tart <pushURL>[--name <name>] [--set-env "<name>=<value>"] [--delete-env <name>]
 ```
 
+### Extensions
+
+Continuing with the theme of making personal projects easier to develop and ship, there are a number of additional services available within pushtart which are technically out-of-scope, but exist for convienence.
+
+Extensions cannot be turned on/off while the server is running, they _must_ be enabled/disabled before the server is started using the commands below.
+
+#### DNSServ
+
+When enabled, DNSServ provides a simple DNS server. Records can be managed via commands, or be automatically added by a tart (see documentation about tartconfig.json).
+
+To enable DNSServ: `./pushtart extension --extension DNSServ --operation enable`
+
+DNSServ can also act as an upstream (caching) DNS server - That way you can use it as your nameserver! To enable, run: `./pushtart extension --extension DNSServ --operation enable-recursion`
+
 ### TODO
 
  - [x] Lock configuration file (.lock file? when pushtart is running)
@@ -76,7 +90,7 @@ Commands:
  - [x] Implement access controls to prevent different users from touching tarts they didnt create
  - [x] Logging to file / console?
  - [ ] Implement a live log using `ssh <server> log`
- - [ ] Implement a basic DNSserv extension to allow referencing tarts cleanly - maybe even make it a caching DNS server?
+ - [x] Implement a basic DNSserv extension to allow referencing tarts cleanly - maybe even make it a caching DNS server?
  - [ ] Implement a config file in the tart to allow it to specify its own config
  - [ ] Refactor sshserv/cmd_exec to abstract out specific commands or at least make the main method more readable.
  - [ ] Mechanism to set normal config parameters from the commandline (using reflection?)

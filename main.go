@@ -101,6 +101,10 @@ func main() {
 		case "import-ssh-key":
 			configInit(params["config"])
 			importSSHKey(params, os.Stdout)
+
+		case "extension":
+			configInit(params["config"])
+			extensionCommand(params, os.Stdout)
 		}
 	}
 }
