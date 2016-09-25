@@ -7,7 +7,8 @@ import (
 	"github.com/miekg/dns"
 )
 
-func sanitizeDomain(in string) string {
+//SanitizeDomain appends a trailing dot to the string if none already exists.
+func SanitizeDomain(in string) string {
 	if !strings.HasSuffix(in, ".") {
 		return in + "."
 	}
@@ -15,8 +16,8 @@ func sanitizeDomain(in string) string {
 }
 
 func makeMXAnswer(name, answerDomain string, Pref uint16, TTL uint32) dns.RR {
-	name = sanitizeDomain(name)
-	answerDomain = sanitizeDomain(answerDomain)
+	name = SanitizeDomain(name)
+	answerDomain = SanitizeDomain(answerDomain)
 
 	r := new(dns.MX)
 	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeMX, Class: dns.ClassINET, Ttl: TTL}
@@ -26,7 +27,7 @@ func makeMXAnswer(name, answerDomain string, Pref uint16, TTL uint32) dns.RR {
 }
 
 func makeAAnswer(name, addr string, TTL uint32) dns.RR {
-	name = sanitizeDomain(name)
+	name = SanitizeDomain(name)
 
 	r := new(dns.A)
 	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeA, Class: dns.ClassINET, Ttl: TTL}
@@ -36,7 +37,7 @@ func makeAAnswer(name, addr string, TTL uint32) dns.RR {
 
 //TODO: Rename to someone less retarded
 func makeAAAAAnswer(name, addr string, TTL uint32) dns.RR {
-	name = sanitizeDomain(name)
+	name = SanitizeDomain(name)
 
 	r := new(dns.AAAA)
 	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeAAAA, Class: dns.ClassINET, Ttl: TTL}
@@ -45,7 +46,7 @@ func makeAAAAAnswer(name, addr string, TTL uint32) dns.RR {
 }
 
 func makeNSAnswer(name, host string, TTL uint32) dns.RR {
-	name = sanitizeDomain(name)
+	name = SanitizeDomain(name)
 
 	r := new(dns.NS)
 	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeNS, Class: dns.ClassINET, Ttl: TTL}
@@ -54,7 +55,7 @@ func makeNSAnswer(name, host string, TTL uint32) dns.RR {
 }
 
 func makeTXTAnswer(name, txt string, TTL uint32) dns.RR {
-	name = sanitizeDomain(name)
+	name = SanitizeDomain(name)
 
 	r := new(dns.TXT)
 	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeTXT, Class: dns.ClassINET, Ttl: TTL}
@@ -63,7 +64,7 @@ func makeTXTAnswer(name, txt string, TTL uint32) dns.RR {
 }
 
 func makeCNAMEAnswer(name, names string, TTL uint32) dns.RR {
-	name = sanitizeDomain(name)
+	name = SanitizeDomain(name)
 
 	r := new(dns.CNAME)
 	r.Hdr = dns.RR_Header{Name: name, Rrtype: dns.TypeCNAME, Class: dns.ClassINET, Ttl: TTL}

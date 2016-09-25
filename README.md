@@ -83,6 +83,14 @@ To enable DNSServ: `./pushtart extension --extension DNSServ --operation enable`
 
 DNSServ can also act as an upstream (caching) DNS server - That way you can use it as your nameserver! To enable, run: `./pushtart extension --extension DNSServ --operation enable-recursion`
 
+#### Managing records manually
+
+```
+./pushtart extension --extension DNSServ --operation add-record --type A --domain crap.com --address 192.168.1.1 --ttl 100
+./pushtart extension --extension DNSServ --operation delete-record --domain crap.com
+```
+
+
 ### TODO
 
  - [x] Lock configuration file (.lock file? when pushtart is running)

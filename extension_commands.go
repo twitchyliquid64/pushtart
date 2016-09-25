@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"pushtart/config"
+	"pushtart/dnsserv"
 	"strconv"
 	"strings"
 )
@@ -34,6 +35,14 @@ func listDnsservOptions(w io.Writer) {
 }
 
 func dnsservCommand(params map[string]string, w io.Writer) {
+	if params["operation"] == "add-record" {
+		if missingFields := checkHasFields([]string{"extension", "operation", "type", "domain", "address", "ttl"}, params); len(missingFields) > 0 {
+			fmt.Fprintln(w, "USAGE: pushtart extension --extension DNSServ --operation add-record --type <DNS-record-type> --domain <domain> --address <ip-address> --ttl <expiry-seconds>")
+			printMissingFields(missingFields, w)
+			return
+		}
+	}
+
 	if params["cache-size"] != "" {
 		cs, err := strconv.Atoi(params["cache-size"])
 		if err != nil {
@@ -54,6 +63,32 @@ func dnsservCommand(params map[string]string, w io.Writer) {
 	}
 	if params["operation"] == "disable-recursion" {
 		config.All().DNS.AllowForwarding = false
+	}
+	if params["operation"] == "add-record" {
+		if strings.ToUpper(params["type"]) == "A" {
+			if config.All().DNS.ARecord == nil {
+				config.All().DNS.ARecord = map[string]config.ARecord{}
+			}
+			ttl, err := strconv.Atoi(params["ttl"])
+			if err != nil {
+				fmt.Fprintln(w, "Err parsing ttl: "+err.Error())
+				return
+			}
+
+			config.All().DNS.ARecord[dnsserv.SanitizeDomain(params["domain"])] = config.ARecord{
+				Address: params["address"],
+				TTL:     uint32(ttl),
+			}
+		}
+	}
+	if params["operation"] == "delete-record" {
+		if params["domain"] == "" {
+			fmt.Fprintln(w, "Err: domain not specified")
+			return
+		}
+		if config.All().DNS.ARecord != nil {
+			delete(config.All().DNS.ARecord, dnsserv.SanitizeDomain(params["domain"]))
+		}
 	}
 
 	config.Flush()

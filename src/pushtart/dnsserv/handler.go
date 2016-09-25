@@ -12,7 +12,7 @@ import (
 var ErrRecordDoesNotExist = errors.New("No authority for record")
 
 func getRecordIfSpecifiedA(domain string) ([]dns.RR, error) {
-	sDomain := sanitizeDomain(domain)
+	sDomain := SanitizeDomain(domain)
 	if config.All().DNS.ARecord == nil {
 		return nil, ErrRecordDoesNotExist
 	}
@@ -22,7 +22,7 @@ func getRecordIfSpecifiedA(domain string) ([]dns.RR, error) {
 	return nil, ErrRecordDoesNotExist
 }
 func getRecordIfSpecifiedAAAA(domain string) ([]dns.RR, error) {
-	sDomain := sanitizeDomain(domain)
+	sDomain := SanitizeDomain(domain)
 	if config.All().DNS.AAAARecord == nil {
 		return nil, ErrRecordDoesNotExist
 	}

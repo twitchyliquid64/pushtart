@@ -91,6 +91,7 @@ var commandParams = map[string][]string{
 	"stop-tart":         []string{"--tart"},
 	"edit-tart":         []string{"--tart", "--name", "--set-env", "--delete-env", "--log-stdout"},
 	"tart-restart-mode": []string{"--tart", "--enabled", "--lull-period"},
+	"extension":         []string{"--extension", "--operation"},
 }
 
 type commandOutputRewriter struct {
