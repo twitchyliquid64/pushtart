@@ -2,12 +2,15 @@ package tartmanager
 
 import (
 	"errors"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
 	"pushtart/config"
 	"pushtart/logging"
+	"pushtart/sshserv/cmd_registry"
 	"pushtart/util"
+	"strings"
 )
 
 // ErrTartOperationNotAuthorized is returned if the pushing user is not allowed to perform that action.
@@ -96,9 +99,52 @@ func PostGitRecieve(pushURL, owner string) error {
 		logging.Error("tartmanager-git-hooks", "Failed to clone repository to deployment directory: "+err.Error())
 		return err
 	}
+
+	//Check if there is a tartconfig file
+	if exists, _ := util.FileExists(path.Join(getDeploymentPath(pushURL), "tartconfig")); exists {
+		err = executeCommandFile(path.Join(getDeploymentPath(pushURL), "tartconfig"), pushURL)
+		if err != nil {
+			logging.Error("tartmanager-git-hooks", "Failed to execute tartconfig: "+err.Error())
+			return err
+		}
+	}
+
 	err = Start(pushURL)
 	if err != nil {
 		logging.Error("tartmanager-git-hooks", "Failed to start tart: "+err.Error())
 	}
 	return err
+}
+
+func executeCommandFile(fPath, pushURL string) error {
+	b, err := ioutil.ReadFile(fPath)
+	if err != nil {
+		return err
+	}
+
+	for _, line := range strings.Split(string(b), "\n") {
+		if line == "" {
+			continue
+		}
+
+		spl := strings.Split(line, " ")
+		logging.Info("tartconfig-exec", "["+pushURL+"] "+line)
+		if ok, runFunc := cmd_registry.Command(spl[0]); ok {
+			cmd := util.ParseCommands(util.TokeniseCommandString(line[len(spl[0]):]))
+			if _, ok := cmd["tart"]; !ok {
+				cmd["tart"] = pushURL
+			}
+			runFunc(cmd, &commandOutputRewriter{PushURL: pushURL})
+		}
+	}
+	return nil
+}
+
+type commandOutputRewriter struct {
+	PushURL string
+}
+
+func (c *commandOutputRewriter) Write(p []byte) (n int, err error) {
+	logging.Info("tartconfig-exec", "["+c.PushURL+"] "+strings.Replace(string(p), "\n", "", -1))
+	return len(p), nil
 }

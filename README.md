@@ -69,6 +69,23 @@ Commands:
 	edit-tart --tart <pushURL>[--name <name>] [--set-env "<name>=<value>"] [--delete-env <name>]
 ```
 
+
+### tartconfig files
+
+Do you hate using pushtarts command line to perform configuration after you `git push`? You don't have to!
+
+Keep all  configuration related to a tart within the tart's repository. Create and commit a file named `tartconfig`, where every line is a pushtart command. The commands in your file will be executed every push!
+
+
+For example:
+
+```
+edit-tart --name "Test Tart"
+extension --extension DNSServ --operation set-record --type A --domain crap.com --address 192.168.1.1 --ttl 100
+```
+
+_NB: You don't have to specify which tart (ie: --tart <pushURL>) like you do on the command line._
+
 ### Extensions
 
 Continuing with the theme of making personal projects easier to develop and ship, there are a number of additional services available within pushtart which are technically out-of-scope, but exist for convienence.
@@ -77,7 +94,7 @@ Extensions cannot be turned on/off while the server is running, they _must_ be e
 
 #### DNSServ
 
-When enabled, DNSServ provides a simple DNS server. Records can be managed via commands, or be automatically added by a tart (see documentation about tartconfig.json).
+When enabled, DNSServ provides a simple DNS server. Records can be managed via commands, or be automatically added by a tart (see documentation about the tartconfig file).
 
 To enable DNSServ: `./pushtart extension --extension DNSServ --operation enable`
 
