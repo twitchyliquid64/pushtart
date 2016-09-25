@@ -110,12 +110,8 @@ DNSServ can also act as an upstream (caching) DNS server - That way you can use 
 
 ### TODO
 
- - [x] Lock configuration file (.lock file? when pushtart is running)
- - [x] Implement way to load a users ssh key when the server is running
  - [x] Implement access controls to prevent different users from touching tarts they didnt create
- - [x] Logging tart output to console
- - [x] Implement a live log using `ssh <server> logs`
- - [x] Implement a basic DNSserv extension to allow referencing tarts cleanly - maybe even make it a caching DNS server?
- - [ ] Implement a config file in the tart to allow it to specify its own config
+ - [x] Implement a basic DNSserv extension which allows basic records
+ - [x] Implement a config file in the tart to allow it to specify its own config
  - [ ] Mechanism to set normal config parameters from the commandline (using reflection?)
  - [ ] Prevent tart management commands for tarts a user doesnt own
