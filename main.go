@@ -32,6 +32,8 @@ func help(params map[string]string, w io.Writer) {
 	fmt.Fprintln(w, "\tstop-tart --tart <pushURL>")
 	fmt.Fprintln(w, "\tedit-tart --tart <pushURL>[--name <name>] [--set-env \"<name>=<value>\"] [--delete-env <name>] [--log-stdout yes/no]")
 	fmt.Fprintln(w, "\textension --extension <extension name> [command-specific-arguments...]")
+	fmt.Fprintln(w, "\tget-config-value --field <config-field> (EG: --field DNS.Listener)")
+	fmt.Fprintln(w, "\tset-config-value --field <config-field> --value <new-value>")
 	if w != os.Stdout {
 		fmt.Fprintln(w, "\tlogs")
 	}
@@ -105,6 +107,14 @@ func main() {
 		case "extension":
 			configInit(params["config"])
 			extensionCommand(params, os.Stdout)
+
+		case "get-config-value":
+			configInit(params["config"])
+			getConfigValue(params, os.Stdout)
+
+		case "set-config-value":
+			configInit(params["config"])
+			setConfigValue(params, os.Stdout)
 		}
 	}
 }
@@ -121,6 +131,8 @@ func registerCommands() {
 	cmd_registry.Register("logs", logMsgs)
 	cmd_registry.Register("tart-restart-mode", tartRestartMode)
 	cmd_registry.Register("extension", extensionCommand)
+	cmd_registry.Register("get-config-value", getConfigValue)
+	cmd_registry.Register("set-config-value", setConfigValue)
 }
 
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration

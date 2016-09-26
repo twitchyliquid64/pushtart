@@ -92,6 +92,8 @@ var commandParams = map[string][]string{
 	"edit-tart":         []string{"--tart", "--name", "--set-env", "--delete-env", "--log-stdout"},
 	"tart-restart-mode": []string{"--tart", "--enabled", "--lull-period"},
 	"extension":         []string{"--extension", "--operation"},
+	"set-config-value":  []string{"--field", "--value"},
+	"get-config-value":  []string{"--field"},
 }
 
 type commandOutputRewriter struct {

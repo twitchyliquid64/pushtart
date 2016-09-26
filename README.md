@@ -66,7 +66,8 @@ Commands:
 	ls-tarts
 	start-tart --tart <pushURL>
 	stop-tart --tart <pushURL>
-	edit-tart --tart <pushURL>[--name <name>] [--set-env "<name>=<value>"] [--delete-env <name>]
+	edit-tart --tart <pushURL>[--name <name>] [--set-env "<name>=<value>"] [--delete-env <name>] [--log-stdout yes/no]
+	tart-restart-mode --tart <pushURL> --enabled yes/no [--lull-period <seconds>]
 ```
 
 
@@ -110,8 +111,11 @@ DNSServ can also act as an upstream (caching) DNS server - That way you can use 
 
 ## TODO
 
- - [x] Implement access controls to prevent different users from touching tarts they didnt create
  - [x] Implement a basic DNSserv extension which allows basic records
- - [x] Implement a config file in the tart to allow it to specify its own config
- - [ ] Mechanism to set normal config parameters from the commandline (using reflection?)
+ - [x] Mechanism to set normal config parameters from the commandline (using reflection?)
+ - [ ] Allow a tart to have more than one owner
  - [ ] Prevent tart management commands for tarts a user doesnt own
+ - [ ] Basic HTTP proxy server extension based on virtual domains
+ - [ ] Authentication for HTTP proxy
+ - [ ] JSON-RPC API for information about users/DNS/running-tarts/system-resources
+ - [ ] Command to delete a tart / user
