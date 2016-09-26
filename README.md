@@ -42,9 +42,9 @@ Most sane people prefer to use SSH keys instead of passwords. To setup a key wit
 
 `./pushtart import-ssh-key --username <insert-pushtart-username-here> --pub-key-file ~/.ssh/id_rsa.pub `
 
-If you need to add a user's SSH key when the server is running try this while logged into that computer as that user:
+If you need to add a user's SSH key when the server is running, try this:
 
-`cat ~/.ssh/id_rsa.pub | ssh <put-server-address-here> -p 2022 import-ssh-key --username <put-username-here>`
+`cat ~/.ssh/id_rsa.pub | ssh <put-server-address-here> -p 2022 import-ssh-key --username <put-pushtart-username-here>`
 
 ### Terminology
 
@@ -59,15 +59,20 @@ SSH server keys, user information, tart status, and other (normally external) in
 Commands:
 	run (Not available from SSH shell)
 	make-config (Not available from SSH shell)
+	get-config-value --field <config-field>
+	set-config-value --field <config-field> --value <new-value>
+
 	import-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>] (Not available from SSH shell)
 	make-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]
 	edit-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]
 	ls-users
+
 	ls-tarts
 	start-tart --tart <pushURL>
 	stop-tart --tart <pushURL>
 	edit-tart --tart <pushURL>[--name <name>] [--set-env "<name>=<value>"] [--delete-env <name>] [--log-stdout yes/no]
 	tart-restart-mode --tart <pushURL> --enabled yes/no [--lull-period <seconds>]
+
 ```
 
 
