@@ -162,3 +162,64 @@ func setEnv(envList []string, envString, delString string) []string {
 	}
 	return output
 }
+
+func tartAddOwner(params map[string]string, w io.Writer) {
+	if missingFields := checkHasFields([]string{"tart", "username"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart tart-add-owner --tart <pushURL> --username <username>")
+		printMissingFields(missingFields, w)
+		return
+	}
+
+	exists, tart := findTart(params["tart"])
+	if !exists {
+		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+
+	for _, owner := range tart.Owners {
+		if owner == params["username"] {
+			fmt.Fprintln(w, "Err: "+params["username"]+" is already set as an owner.")
+			return
+		}
+	}
+
+	tart.Owners = append(tart.Owners, params["username"])
+	tartmanager.Save(tart.PushURL, tart)
+}
+
+func tartRemoveOwner(params map[string]string, w io.Writer) {
+	if missingFields := checkHasFields([]string{"tart", "username"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart tart-remove-owner --tart <pushURL> --username <username>")
+		printMissingFields(missingFields, w)
+		return
+	}
+
+	exists, tart := findTart(params["tart"])
+	if !exists {
+		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+
+	didFind := false
+	temp := []string{}
+	for _, owner := range tart.Owners {
+		if owner == params["username"] {
+			didFind = true
+		} else {
+			temp = append(temp, owner)
+		}
+	}
+
+	if !didFind {
+		fmt.Fprintln(w, "Err: That user is not a tart owner.")
+		return
+	}
+
+	if len(temp) == 0 {
+		fmt.Fprintln(w, "Err: A tart must always have at least own owner. Add another owner or delete the tart.")
+		return
+	}
+
+	tart.Owners = temp
+	tartmanager.Save(tart.PushURL, tart)
+}

@@ -24,16 +24,21 @@ func help(params map[string]string, w io.Writer) {
 		fmt.Fprintln(w, "\tmake-config")
 		fmt.Fprintln(w, "\timport-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>] (Not available from SSH shell)")
 	}
+	fmt.Fprintln(w, "\tget-config-value --field <config-field> (EG: --field DNS.Listener)")
+	fmt.Fprintln(w, "\tset-config-value --field <config-field> --value <new-value>")
+	fmt.Fprintln(w, " ")
 	fmt.Fprintln(w, "\tmake-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]")
 	fmt.Fprintln(w, "\tedit-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]")
 	fmt.Fprintln(w, "\tls-users")
+	fmt.Fprintln(w, " ")
 	fmt.Fprintln(w, "\tls-tarts")
 	fmt.Fprintln(w, "\tstart-tart --tart <pushURL>")
 	fmt.Fprintln(w, "\tstop-tart --tart <pushURL>")
 	fmt.Fprintln(w, "\tedit-tart --tart <pushURL>[--name <name>] [--set-env \"<name>=<value>\"] [--delete-env <name>] [--log-stdout yes/no]")
+	fmt.Fprintln(w, "\ttart-add-owner --tart <pushURL> --username <username>")
+	fmt.Fprintln(w, "\ttart-remove-owner --tart <pushURL> --username <username>")
 	fmt.Fprintln(w, "\textension --extension <extension name> [command-specific-arguments...]")
-	fmt.Fprintln(w, "\tget-config-value --field <config-field> (EG: --field DNS.Listener)")
-	fmt.Fprintln(w, "\tset-config-value --field <config-field> --value <new-value>")
+
 	if w != os.Stdout {
 		fmt.Fprintln(w, "\tlogs")
 	}
@@ -115,6 +120,14 @@ func main() {
 		case "set-config-value":
 			configInit(params["config"])
 			setConfigValue(params, os.Stdout)
+
+		case "tart-add-owner":
+			configInit(params["config"])
+			tartAddOwner(params, os.Stdout)
+
+		case "tart-remove-owner":
+			configInit(params["config"])
+			tartRemoveOwner(params, os.Stdout)
 		}
 	}
 }
@@ -133,6 +146,8 @@ func registerCommands() {
 	cmd_registry.Register("extension", extensionCommand)
 	cmd_registry.Register("get-config-value", getConfigValue)
 	cmd_registry.Register("set-config-value", setConfigValue)
+	cmd_registry.Register("tart-add-owner", tartAddOwner)
+	cmd_registry.Register("tart-remove-owner", tartRemoveOwner)
 }
 
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration

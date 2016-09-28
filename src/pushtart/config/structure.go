@@ -53,7 +53,7 @@ type User struct {
 type Tart struct {
 	PushURL          string
 	Name             string
-	Owner            string
+	Owners           []string
 	IsRunning        bool
 	LogStdout        bool
 	PID              int

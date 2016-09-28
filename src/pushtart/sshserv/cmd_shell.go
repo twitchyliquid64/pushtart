@@ -94,6 +94,8 @@ var commandParams = map[string][]string{
 	"extension":         []string{"--extension", "--operation"},
 	"set-config-value":  []string{"--field", "--value"},
 	"get-config-value":  []string{"--field"},
+	"tart-add-owner":    []string{"--username", "--tart"},
+	"tart-remove-owner": []string{"--username", "--tart"},
 }
 
 type commandOutputRewriter struct {

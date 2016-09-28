@@ -72,7 +72,10 @@ Commands:
 	stop-tart --tart <pushURL>
 	edit-tart --tart <pushURL>[--name <name>] [--set-env "<name>=<value>"] [--delete-env <name>] [--log-stdout yes/no]
 	tart-restart-mode --tart <pushURL> --enabled yes/no [--lull-period <seconds>]
+	tart-add-owner --tart <pushURL> --username <username>
+	tart-remove-owner --tart <pushURL> --username <username>
 
+	extension --extension <extension name> [command-specific-arguments...]
 ```
 
 
@@ -118,7 +121,7 @@ DNSServ can also act as an upstream (caching) DNS server - That way you can use 
 
  - [x] Implement a basic DNSserv extension which allows basic records
  - [x] Mechanism to set normal config parameters from the commandline (using reflection?)
- - [ ] Allow a tart to have more than one owner
+ - [x] Allow a tart to have more than one owner
  - [ ] Prevent tart management commands for tarts a user doesnt own
  - [ ] Basic HTTP proxy server extension based on virtual domains
  - [ ] Authentication for HTTP proxy

@@ -39,7 +39,7 @@ func New(pushURL, owner string) {
 		Name:             pushURL,
 		PushURL:          pushURL,
 		IsRunning:        false,
-		Owner:            owner,
+		Owners:           []string{owner},
 		PID:              -1,
 		RestartDelaySecs: 30,
 		RestartOnStop:    false,
