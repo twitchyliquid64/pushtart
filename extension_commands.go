@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func extensionCommand(params map[string]string, w io.Writer) {
+func extensionCommand(params map[string]string, w io.Writer, user string) {
 	if params["operation"] == "show-config" {
 		listDnsservOptions(w)
 		return

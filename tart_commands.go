@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func listTarts(params map[string]string, w io.Writer) {
+func listTarts(params map[string]string, w io.Writer, user string) {
 	for pushURL, tart := range config.All().Tarts {
 		fmt.Fprint(w, tart.Name+" ("+pushURL+"): ")
 		if tart.IsRunning {
@@ -32,7 +32,7 @@ func listTarts(params map[string]string, w io.Writer) {
 	}
 }
 
-func startTart(params map[string]string, w io.Writer) {
+func startTart(params map[string]string, w io.Writer, user string) {
 	if missingFields := checkHasFields([]string{"tart"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart start-tart --tart <pushURL>")
 		printMissingFields(missingFields, w)
@@ -42,6 +42,10 @@ func startTart(params map[string]string, w io.Writer) {
 	exists, tart := findTart(params["tart"])
 	if !exists {
 		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+	if user != "" && !tartmanager.UserHasTartOwnership(user, tart.Owners) {
+		fmt.Fprintln(w, "Err: You ("+user+") are not an owner of the specified tart")
 		return
 	}
 	err := tartmanager.Start(tart.PushURL)
@@ -50,7 +54,7 @@ func startTart(params map[string]string, w io.Writer) {
 	}
 }
 
-func stopTart(params map[string]string, w io.Writer) {
+func stopTart(params map[string]string, w io.Writer, user string) {
 	if missingFields := checkHasFields([]string{"tart"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart start-tart --tart <pushURL>")
 		printMissingFields(missingFields, w)
@@ -60,6 +64,10 @@ func stopTart(params map[string]string, w io.Writer) {
 	exists, tart := findTart(params["tart"])
 	if !exists {
 		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+	if user != "" && !tartmanager.UserHasTartOwnership(user, tart.Owners) {
+		fmt.Fprintln(w, "Err: You ("+user+") are not an owner of the specified tart")
 		return
 	}
 	err := tartmanager.Stop(tart.PushURL)
@@ -78,7 +86,7 @@ func findTart(tartName string) (bool, config.Tart) {
 	return false, config.Tart{}
 }
 
-func editTart(params map[string]string, w io.Writer) {
+func editTart(params map[string]string, w io.Writer, user string) {
 	if missingFields := checkHasFields([]string{"tart"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart edit-tart --tart <pushURL> [--name <name>] [--set-env \"<env-name>=<env-value>\"] [--delete-env <env-name>] [--log-stdout yes/no]")
 		printMissingFields(missingFields, w)
@@ -88,6 +96,11 @@ func editTart(params map[string]string, w io.Writer) {
 	exists, tart := findTart(params["tart"])
 	if !exists {
 		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+
+	if user != "" && !tartmanager.UserHasTartOwnership(user, tart.Owners) {
+		fmt.Fprintln(w, "Err: You ("+user+") are not an owner of the specified tart")
 		return
 	}
 
@@ -114,7 +127,7 @@ func editTart(params map[string]string, w io.Writer) {
 	tartmanager.Save(tart.PushURL, tart)
 }
 
-func tartRestartMode(params map[string]string, w io.Writer) {
+func tartRestartMode(params map[string]string, w io.Writer, user string) {
 	if missingFields := checkHasFields([]string{"tart", "enabled"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart tart-restart-mode --tart <pushURL> --enabled yes/no [--lull-period <seconds>]")
 		printMissingFields(missingFields, w)
@@ -124,6 +137,10 @@ func tartRestartMode(params map[string]string, w io.Writer) {
 	exists, tart := findTart(params["tart"])
 	if !exists {
 		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+	if user != "" && !tartmanager.UserHasTartOwnership(user, tart.Owners) {
+		fmt.Fprintln(w, "Err: You ("+user+") are not an owner of the specified tart")
 		return
 	}
 
@@ -163,7 +180,7 @@ func setEnv(envList []string, envString, delString string) []string {
 	return output
 }
 
-func tartAddOwner(params map[string]string, w io.Writer) {
+func tartAddOwner(params map[string]string, w io.Writer, user string) {
 	if missingFields := checkHasFields([]string{"tart", "username"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart tart-add-owner --tart <pushURL> --username <username>")
 		printMissingFields(missingFields, w)
@@ -173,6 +190,10 @@ func tartAddOwner(params map[string]string, w io.Writer) {
 	exists, tart := findTart(params["tart"])
 	if !exists {
 		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+	if user != "" && !tartmanager.UserHasTartOwnership(user, tart.Owners) {
+		fmt.Fprintln(w, "Err: You ("+user+") are not an owner of the specified tart")
 		return
 	}
 
@@ -187,7 +208,7 @@ func tartAddOwner(params map[string]string, w io.Writer) {
 	tartmanager.Save(tart.PushURL, tart)
 }
 
-func tartRemoveOwner(params map[string]string, w io.Writer) {
+func tartRemoveOwner(params map[string]string, w io.Writer, user string) {
 	if missingFields := checkHasFields([]string{"tart", "username"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart tart-remove-owner --tart <pushURL> --username <username>")
 		printMissingFields(missingFields, w)
@@ -197,6 +218,10 @@ func tartRemoveOwner(params map[string]string, w io.Writer) {
 	exists, tart := findTart(params["tart"])
 	if !exists {
 		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+	if user != "" && !tartmanager.UserHasTartOwnership(user, tart.Owners) {
+		fmt.Fprintln(w, "Err: You ("+user+") are not an owner of the specified tart")
 		return
 	}
 

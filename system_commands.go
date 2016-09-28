@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func logMsgs(params map[string]string, w io.Writer) {
+func logMsgs(params map[string]string, w io.Writer, user string) {
 	logMsgs := logging.GetBacklog()
 
 	for _, msg := range logMsgs {
@@ -20,7 +20,7 @@ func logMsgs(params map[string]string, w io.Writer) {
 	}
 }
 
-func setConfigValue(params map[string]string, w io.Writer) {
+func setConfigValue(params map[string]string, w io.Writer, user string) {
 	if missingFields := checkHasFields([]string{"field", "value"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart set-config-value --field <config-field> --value <new-value>")
 		printMissingFields(missingFields, w)
@@ -34,7 +34,7 @@ func setConfigValue(params map[string]string, w io.Writer) {
 	config.Flush()
 }
 
-func getConfigValue(params map[string]string, w io.Writer) {
+func getConfigValue(params map[string]string, w io.Writer, user string) {
 	if missingFields := checkHasFields([]string{"field"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart get-config-value --field <config-field>")
 		printMissingFields(missingFields, w)

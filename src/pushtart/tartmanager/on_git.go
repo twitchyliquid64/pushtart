@@ -50,7 +50,7 @@ func checkCreateRepo(pushURL, owner string) error {
 		logging.Info("tartmanager-git-hooks", "Receiving git push for existing tart: "+pushURL)
 		tart := Get(pushURL)
 
-		if !checkUserHasTartOwnership(owner, tart.Owners) {
+		if !UserHasTartOwnership(owner, tart.Owners) {
 			logging.Warning("tartmanager-git-hooks", "Aborting git-recieve for tart '"+pushURL+"'. Pushing user is not the owner of the tart.")
 			return ErrTartOperationNotAuthorized
 		}
@@ -134,7 +134,7 @@ func executeCommandFile(fPath, pushURL string) error {
 			if _, ok := cmd["tart"]; !ok {
 				cmd["tart"] = pushURL
 			}
-			runFunc(cmd, &commandOutputRewriter{PushURL: pushURL})
+			runFunc(cmd, &commandOutputRewriter{PushURL: pushURL}, "")
 		}
 	}
 	return nil
@@ -147,13 +147,4 @@ type commandOutputRewriter struct {
 func (c *commandOutputRewriter) Write(p []byte) (n int, err error) {
 	logging.Info("tartconfig-exec", "["+c.PushURL+"] "+strings.Replace(string(p), "\n", "", -1))
 	return len(p), nil
-}
-
-func checkUserHasTartOwnership(user string, owners []string) bool {
-	for _, owner := range owners {
-		if user == owner {
-			return true
-		}
-	}
-	return false
 }

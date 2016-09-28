@@ -39,7 +39,7 @@ func saveUser(username string, usr config.User, params map[string]string) {
 	user.Save(username, usr)
 }
 
-func editUser(params map[string]string, w io.Writer) {
+func editUser(params map[string]string, w io.Writer, callingUser string) {
 	if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart edit-user --username <username> [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")
 		printMissingFields(missingFields, w)
@@ -55,7 +55,7 @@ func editUser(params map[string]string, w io.Writer) {
 	saveUser(params["username"], usr, params)
 }
 
-func listUser(params map[string]string, w io.Writer) {
+func listUser(params map[string]string, w io.Writer, callingUser string) {
 	for username, user := range config.All().Users {
 		fmt.Fprint(w, username+" ("+user.Name+"): [")
 		if user.SSHPubKey != "" {
@@ -71,7 +71,7 @@ func listUser(params map[string]string, w io.Writer) {
 	}
 }
 
-func makeUser(params map[string]string, w io.Writer) {
+func makeUser(params map[string]string, w io.Writer, callingUser string) {
 	if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart make-user --username <username> [--config <config file>] [--password <password] [--name <name] [--allow-ssh-password yes/no]")
 		printMissingFields(missingFields, w)
@@ -88,7 +88,7 @@ func makeUser(params map[string]string, w io.Writer) {
 	saveUser(params["username"], usr, params)
 }
 
-func importSSHKey(params map[string]string, w io.Writer) {
+func importSSHKey(params map[string]string, w io.Writer, callingUser string) {
 	if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart import-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>]")
 		printMissingFields(missingFields, w)

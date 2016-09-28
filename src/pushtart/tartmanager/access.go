@@ -54,3 +54,13 @@ func List() []string {
 	}
 	return output
 }
+
+//UserHasTartOwnership returns true if the given user is an owner of the given tart.Owners field.
+func UserHasTartOwnership(user string, owners []string) bool {
+	for _, owner := range owners {
+		if user == owner {
+			return true
+		}
+	}
+	return false
+}

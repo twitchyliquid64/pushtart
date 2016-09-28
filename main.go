@@ -14,7 +14,7 @@ import (
 	"syscall"
 )
 
-func help(params map[string]string, w io.Writer) {
+func help(params map[string]string, w io.Writer, user string) {
 	if w == os.Stdout {
 		fmt.Fprintln(w, "USAGE: pushtart <command> [--config <config file>] [command-specific-arguments...]")
 		fmt.Fprintln(w, "If no config file is specified, config.json will be used.")
@@ -22,18 +22,22 @@ func help(params map[string]string, w io.Writer) {
 		fmt.Fprintln(w, "Commands:")
 		fmt.Fprintln(w, "\trun")
 		fmt.Fprintln(w, "\tmake-config")
-		fmt.Fprintln(w, "\timport-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>] (Not available from SSH shell)")
 	}
 	fmt.Fprintln(w, "\tget-config-value --field <config-field> (EG: --field DNS.Listener)")
 	fmt.Fprintln(w, "\tset-config-value --field <config-field> --value <new-value>")
 	fmt.Fprintln(w, " ")
+	if w == os.Stdout {
+		fmt.Fprintln(w, "\timport-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>] (Not available from SSH shell)")
+	}
 	fmt.Fprintln(w, "\tmake-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]")
 	fmt.Fprintln(w, "\tedit-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]")
 	fmt.Fprintln(w, "\tls-users")
 	fmt.Fprintln(w, " ")
 	fmt.Fprintln(w, "\tls-tarts")
-	fmt.Fprintln(w, "\tstart-tart --tart <pushURL>")
-	fmt.Fprintln(w, "\tstop-tart --tart <pushURL>")
+	if w != os.Stdout {
+		fmt.Fprintln(w, "\tstart-tart --tart <pushURL>")
+		fmt.Fprintln(w, "\tstop-tart --tart <pushURL>")
+	}
 	fmt.Fprintln(w, "\tedit-tart --tart <pushURL>[--name <name>] [--set-env \"<name>=<value>\"] [--delete-env <name>] [--log-stdout yes/no]")
 	fmt.Fprintln(w, "\ttart-add-owner --tart <pushURL> --username <username>")
 	fmt.Fprintln(w, "\ttart-remove-owner --tart <pushURL> --username <username>")
@@ -48,7 +52,7 @@ func main() {
 	defer config.UnlockConfig() //Only unlocks if a config was successfully locked
 
 	if len(os.Args) < 2 {
-		help(nil, os.Stdout)
+		help(nil, os.Stdout, "")
 	} else {
 
 		params := parseCommands(os.Args[2:])
@@ -75,59 +79,51 @@ func main() {
 
 		case "make-user":
 			configInit(params["config"])
-			makeUser(params, os.Stdout)
+			makeUser(params, os.Stdout, "")
 
 		case "edit-user":
 			configInit(params["config"])
-			editUser(params, os.Stdout)
+			editUser(params, os.Stdout, "")
 
 		case "ls-users":
 			configInit(params["config"])
-			listUser(params, os.Stdout)
+			listUser(params, os.Stdout, "")
 
 		case "ls-tarts":
 			configInit(params["config"])
-			listTarts(params, os.Stdout)
-
-		case "start-tart":
-			configInit(params["config"])
-			startTart(params, os.Stdout)
-
-		case "stop-tart":
-			configInit(params["config"])
-			stopTart(params, os.Stdout)
+			listTarts(params, os.Stdout, "")
 
 		case "edit-tart":
 			configInit(params["config"])
-			editTart(params, os.Stdout)
+			editTart(params, os.Stdout, "")
 
 		case "tart-restart-mode":
 			configInit(params["config"])
-			tartRestartMode(params, os.Stdout)
+			tartRestartMode(params, os.Stdout, "")
 
 		case "import-ssh-key":
 			configInit(params["config"])
-			importSSHKey(params, os.Stdout)
+			importSSHKey(params, os.Stdout, "")
 
 		case "extension":
 			configInit(params["config"])
-			extensionCommand(params, os.Stdout)
+			extensionCommand(params, os.Stdout, "")
 
 		case "get-config-value":
 			configInit(params["config"])
-			getConfigValue(params, os.Stdout)
+			getConfigValue(params, os.Stdout, "")
 
 		case "set-config-value":
 			configInit(params["config"])
-			setConfigValue(params, os.Stdout)
+			setConfigValue(params, os.Stdout, "")
 
 		case "tart-add-owner":
 			configInit(params["config"])
-			tartAddOwner(params, os.Stdout)
+			tartAddOwner(params, os.Stdout, "")
 
 		case "tart-remove-owner":
 			configInit(params["config"])
-			tartRemoveOwner(params, os.Stdout)
+			tartRemoveOwner(params, os.Stdout, "")
 		}
 	}
 }
