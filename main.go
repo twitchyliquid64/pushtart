@@ -11,6 +11,7 @@ import (
 	"pushtart/sshserv"
 	"pushtart/sshserv/cmd_registry"
 	"pushtart/util"
+	"pushtart/webproxy"
 	"syscall"
 )
 
@@ -67,6 +68,7 @@ func main() {
 				logging.Error("main-sshserv", err.Error())
 			}
 			dnsserv.Init()
+			webproxy.Init()
 
 			c := make(chan os.Signal, 2)
 			signal.Notify(c, os.Interrupt, syscall.SIGTERM)

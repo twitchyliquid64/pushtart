@@ -7,13 +7,17 @@ type Config struct {
 	DeploymentPath string
 	Path           string   `json:"-"` //path used to represent where the file is currently stored.
 	TLS            struct { //Relative file addresses of the .pem files needed for TLS.
+		Enabled    bool
 		PrivateKey string
 		Cert       string
 	}
 
 	Web struct { //Details needed to get the website part working.
-		Domain   string //Domain should be in the form example.com
-		Listener string //Address:port (address can be omitted) where the HTTPS listener will bind.
+		Enabled       bool
+		DefaultDomain string //Domain should be in the form example.com
+		Listener      string //Address:port (address can be omitted) where the HTTPS listener will bind.
+		DomainProxies map[string]DomainProxy
+		LogAllProxies bool
 	}
 
 	SSH struct {
@@ -33,6 +37,13 @@ type Config struct {
 
 	Users map[string]User
 	Tarts map[string]Tart
+}
+
+//DomainProxy represents a reverse proxy for requests recieved on a specific domain, to a specific host/port.
+type DomainProxy struct {
+	TargetHost   string
+	TargetPort   int
+	TargetScheme string
 }
 
 //ARecord represents a response that could be served to a DNS query of type A.

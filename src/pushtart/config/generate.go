@@ -60,6 +60,10 @@ func Generate(fpath string) (err error) {
 		gConfig.DNS.LookupCacheSize = 550
 	}
 
+	if gConfig.Web.Listener == "" {
+		gConfig.Web.Listener = ":8080"
+	}
+
 	lockConfig(gConfig.Path)
 	return writeConfig()
 }
