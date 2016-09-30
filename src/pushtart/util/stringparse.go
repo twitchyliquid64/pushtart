@@ -26,7 +26,7 @@ func BestPrefixMatch(inputStr string, options []string) string {
 	matches := 0
 	lastMatch := ""
 	for _, option := range options {
-		if strings.HasPrefix(option, inputStr) {
+		if strings.HasPrefix(strings.ToUpper(option), strings.ToUpper(inputStr)) {
 			matches++
 			lastMatch = option
 		}
