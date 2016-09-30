@@ -58,30 +58,8 @@ func httpproxyCommand(params map[string]string, w io.Writer) {
 	}
 
 	if params["operation"] == "set-domain-proxy" {
-		if missingFields := checkHasFields([]string{"extension", "operation", "domain", "targetport", "targethost"}, params); len(missingFields) > 0 {
-			fmt.Fprintln(w, "USAGE: pushtart extension --extension HTTPProxy --operation set-domain-proxy --domain <domain> --targethost <host> --targetport <port>")
-			printMissingFields(missingFields, w)
+		if !httpproxySetDomainProxy(params, w) {
 			return
-		}
-
-		if config.All().Web.DomainProxies == nil {
-			config.All().Web.DomainProxies = map[string]config.DomainProxy{}
-		}
-		port, err := strconv.Atoi(params["targetport"])
-		if err != nil {
-			fmt.Fprintln(w, "Err parsing port: "+err.Error())
-			return
-		}
-
-		scheme := "http"
-		if params["scheme"] != "" {
-			scheme = params["scheme"]
-		}
-
-		config.All().Web.DomainProxies[strings.ToLower(params["domain"])] = config.DomainProxy{
-			TargetHost:   params["targethost"],
-			TargetPort:   port,
-			TargetScheme: scheme,
 		}
 	}
 	if params["operation"] == "delete-domain-proxy" {
@@ -94,7 +72,131 @@ func httpproxyCommand(params map[string]string, w io.Writer) {
 		}
 	}
 
+	if params["operation"] == "add-authorization-rule" {
+		if !httpproxyAddAuthorizationRule(params, w) {
+			return
+		}
+	}
+	if params["operation"] == "remove-authorization-rule" {
+		if !httpproxyRemoveAuthorizationRule(params, w) {
+			return
+		}
+	}
+
 	config.Flush()
+}
+
+func httpproxySetDomainProxy(params map[string]string, w io.Writer) bool {
+	if missingFields := checkHasFields([]string{"extension", "operation", "domain", "targetport", "targethost"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart extension --extension HTTPProxy --operation set-domain-proxy --domain <domain> --targethost <host> --targetport <port>")
+		printMissingFields(missingFields, w)
+		return false
+	}
+
+	if config.All().Web.DomainProxies == nil {
+		config.All().Web.DomainProxies = map[string]config.DomainProxy{}
+	}
+	port, err := strconv.Atoi(params["targetport"])
+	if err != nil {
+		fmt.Fprintln(w, "Err parsing port: "+err.Error())
+		return false
+	}
+
+	scheme := "http"
+	if params["scheme"] != "" {
+		scheme = params["scheme"]
+	}
+
+	config.All().Web.DomainProxies[strings.ToLower(params["domain"])] = config.DomainProxy{
+		TargetHost:   params["targethost"],
+		TargetPort:   port,
+		TargetScheme: scheme,
+	}
+	return true
+}
+
+func httpproxyRemoveAuthorizationRule(params map[string]string, w io.Writer) bool {
+	if missingFields := checkHasFields([]string{"extension", "operation", "domain", "type"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart extension --extension HTTPProxy --operation remove-authorization-rule --domain <domain> --type <type>")
+		fmt.Fprintln(w, "\tAvailable Types: ALLOW_ANY_USER,USR_DENY,USR_ALLOW")
+		fmt.Fprintln(w, "\tPass a username using --username for USR_ALLOW and USR_DENY")
+		printMissingFields(missingFields, w)
+		return false
+	}
+	if _, ok := config.All().Web.DomainProxies[params["domain"]]; !ok { //make sure domain exists
+		fmt.Fprintln(w, "Err: No domain proxy with domain '"+params["domain"]+"'")
+		return false
+	}
+	if !authRuleTypeValid(params, w) {
+		return false
+	}
+
+	domEntry := config.All().Web.DomainProxies[params["domain"]]
+	for i := 0; i < len(domEntry.AuthRules); i++ {
+		existingEntry := domEntry.AuthRules[i]
+		if existingEntry.RuleType == params["type"] && existingEntry.Username == params["username"] {
+			domEntry.AuthRules = append(domEntry.AuthRules[:i], domEntry.AuthRules[i+1:]...)
+			config.All().Web.DomainProxies[params["domain"]] = domEntry
+			return true
+		}
+	}
+	fmt.Fprintln(w, "Err: No rules with that type/username.")
+	return false
+}
+
+func httpproxyAddAuthorizationRule(params map[string]string, w io.Writer) bool {
+	if missingFields := checkHasFields([]string{"extension", "operation", "domain", "type"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart extension --extension HTTPProxy --operation add-authorization-rule --domain <domain> --type <type>")
+		fmt.Fprintln(w, "\tAvailable Types: ALLOW_ANY_USER,USR_DENY,USR_ALLOW")
+		fmt.Fprintln(w, "\tPass a username using --username for USR_ALLOW and USR_DENY")
+		printMissingFields(missingFields, w)
+		return false
+	}
+	if _, ok := config.All().Web.DomainProxies[params["domain"]]; !ok { //make sure domain exists
+		fmt.Fprintln(w, "Err: No domain proxy with domain '"+params["domain"]+"'")
+		return false
+	}
+	if !authRuleTypeValid(params, w) {
+		return false
+	}
+	rule := config.AuthorizationRule{
+		RuleType: params["type"],
+		Username: params["username"],
+	}
+	domEntry := config.All().Web.DomainProxies[params["domain"]]
+	if authorizationRuleExists(domEntry, rule) {
+		fmt.Fprintln(w, "Err: An identical rule already exists")
+		return false
+	}
+	domEntry.AuthRules = append(domEntry.AuthRules, rule)
+	config.All().Web.DomainProxies[params["domain"]] = domEntry
+	return true
+}
+
+func authRuleTypeValid(params map[string]string, w io.Writer) bool {
+	switch params["type"] { //make sure type is a valid value
+	case "ALLOW_ANY_USER":
+	case "USR_ALLOW":
+		fallthrough
+	case "USR_DENY":
+		if params["username"] == "" {
+			fmt.Fprintln(w, "Err: Username not specified")
+			return false
+		}
+	default:
+		fmt.Fprintln(w, "Err: Invalid type - choose one of: ALLOW_ANY_USER,USR_DENY,USR_ALLOW")
+		return false
+	}
+	return true
+}
+
+func authorizationRuleExists(proxy config.DomainProxy, rule config.AuthorizationRule) bool {
+	for _, r := range proxy.AuthRules {
+		if r.RuleType == rule.RuleType && r.Username == rule.Username {
+			return true
+		}
+	}
+	return false
 }
 
 func listDnsservOptions(w io.Writer) {

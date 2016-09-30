@@ -7,11 +7,13 @@ import (
 	"net/url"
 	"pushtart/config"
 	"pushtart/logging"
+	"pushtart/user"
 	"strconv"
 	"strings"
 	"time"
 )
 
+//routes all requests
 func main(w http.ResponseWriter, r *http.Request) {
 	host := trimHostFieldToJustHostname(r.Host)
 	if host == config.All().Web.DefaultDomain {
@@ -38,6 +40,15 @@ func trimHostFieldToJustHostname(hostField string) string {
 }
 
 func proxyRequestViaNetwork(proxyEntry config.DomainProxy, w http.ResponseWriter, r *http.Request) {
+
+	//see if request authorized
+	if !authorized(proxyEntry, w, r) {
+		w.Header().Set("WWW-Authenticate", `Basic realm="Authorization check required to access domain"`)
+		w.WriteHeader(401)
+		w.Write([]byte("401 Unauthorized\n"))
+		return
+	}
+
 	if config.All().Web.LogAllProxies {
 		logging.Info("httpproxy-main", "Proxying request "+r.Host+" -> "+proxyEntry.TargetHost+":"+strconv.Itoa(proxyEntry.TargetPort)+r.URL.Path)
 	}
@@ -70,4 +81,40 @@ func proxyRequestViaNetwork(proxyEntry config.DomainProxy, w http.ResponseWriter
 	}
 
 	prox.ServeHTTP(w, r)
+}
+
+//Grants authorization if there are not auth rules, else if they have a valid basic auth that positively matches
+//one of the rules.
+func authorized(proxyEntry config.DomainProxy, w http.ResponseWriter, r *http.Request) bool {
+	if len(proxyEntry.AuthRules) == 0 {
+		return true
+	}
+	usr, pwd, ok := r.BasicAuth()
+
+	//First, check if any DENY rules match
+	for _, rule := range proxyEntry.AuthRules {
+		if rule.RuleType == "USR_DENY" {
+			if usr == rule.Username {
+				return false
+			}
+		}
+	}
+
+	if !ok { //No basic Auth specified
+		return false
+	}
+	if !user.CheckUserPasswordWeb(usr, pwd) { //Incorrect password for given auth
+		return false
+	}
+	for _, rule := range proxyEntry.AuthRules {
+		switch rule.RuleType {
+		case "ALLOW_ANY_USER":
+			return true
+		case "USR_ALLOW":
+			if rule.Username == usr {
+				return true
+			}
+		}
+	}
+	return false
 }

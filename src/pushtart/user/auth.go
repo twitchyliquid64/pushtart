@@ -41,3 +41,23 @@ func CheckUserPasswordSSH(username, password string) bool {
 	}
 	return false
 }
+
+// CheckUserPasswordWeb checks the given username to see if the stored password matches the one provided.
+// If the user does not exist, or the passwords do not match, false is returned.
+func CheckUserPasswordWeb(username, password string) bool {
+	usrStruct, ok := config.All().Users[username]
+	if !ok {
+		return false
+	}
+
+	err := util.ComparePassHash(usrStruct.Password, username, password)
+	if err == nil { //if err == nil the passwords match
+		return true
+	}
+
+	if err != bcrypt.ErrMismatchedHashAndPassword {
+		logging.Error("httpproxy-auth", "Hash compare error: "+err.Error())
+	}
+
+	return false
+}

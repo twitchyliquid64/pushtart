@@ -44,6 +44,13 @@ type DomainProxy struct {
 	TargetHost   string
 	TargetPort   int
 	TargetScheme string
+	AuthRules    []AuthorizationRule
+}
+
+//AuthorizationRule is a ALLOW/DENY rule for a specific domain
+type AuthorizationRule struct {
+	RuleType string
+	Username string
 }
 
 //ARecord represents a response that could be served to a DNS query of type A.
