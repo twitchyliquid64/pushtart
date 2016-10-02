@@ -48,7 +48,12 @@ func Start(pushURL string) error {
 	if err != nil {
 		return err
 	}
-	go tartLogRoutine(tart, stdout)
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		stdout.Close()
+		return err
+	}
+	go tartLogRoutine(tart, stdout, stderr)
 
 	err = cmd.Start()
 	if err != nil {

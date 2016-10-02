@@ -8,8 +8,30 @@ import (
 	"time"
 )
 
-func tartLogRoutine(tart config.Tart, reader io.ReadCloser) {
+func tartLogRoutine(tart config.Tart, reader io.ReadCloser, errReader io.ReadCloser) {
 	buf := make([]byte, 4096*2)
+
+	go func() {
+		buf2 := make([]byte, 4096*2)
+		for {
+			n, err := errReader.Read(buf2)
+			if err != nil {
+				if err != io.EOF {
+					logging.Error("tartmanager-service", "Stderr read error: "+err.Error())
+				}
+				break
+			} else {
+				if tart.LogStdout {
+					spl := strings.Split(strings.Replace(string(buf2[:n]), "\r", "", -1), "\n")
+					for _, line := range spl {
+						if len(line) > 0 {
+							logging.Info(tart.Name, line)
+						}
+					}
+				}
+			}
+		}
+	}()
 
 	for {
 		n, err := reader.Read(buf)
