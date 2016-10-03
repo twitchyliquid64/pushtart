@@ -8,6 +8,7 @@ import (
 	"pushtart/logging"
 	"pushtart/util"
 	"strings"
+	"time"
 )
 
 //ErrTartNotFound is returned if a stop/start is requested but the tart specified by pushURL could not be found.
@@ -90,6 +91,8 @@ func Stop(pushURL string) error {
 	tart.PID = -1
 	tart.IsRunning = false
 	Save(pushURL, tart)
+	proc.Signal(os.Interrupt)
+	time.Sleep(400 * time.Millisecond)
 	err = proc.Kill()
 
 	if err != nil && strings.Contains(err.Error(), "process already finished") {
