@@ -126,6 +126,10 @@ func main() {
 		case "tart-remove-owner":
 			configInit(params["config"])
 			tartRemoveOwner(params, os.Stdout, "")
+
+		case "digest-tartconfig":
+			configInit(params["config"])
+			digestTartConfig(params, os.Stdout, "")
 		}
 	}
 }
@@ -146,6 +150,7 @@ func registerCommands() {
 	cmd_registry.Register("set-config-value", setConfigValue)
 	cmd_registry.Register("tart-add-owner", tartAddOwner)
 	cmd_registry.Register("tart-remove-owner", tartRemoveOwner)
+	cmd_registry.Register("digest-tartconfig", digestTartConfig)
 }
 
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration

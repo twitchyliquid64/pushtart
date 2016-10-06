@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"path"
 	"pushtart/config"
 	"pushtart/tartmanager"
 	"strconv"
@@ -29,6 +30,28 @@ func listTarts(params map[string]string, w io.Writer, user string) {
 				fmt.Fprintln(w, "\t"+env)
 			}
 		}
+	}
+}
+
+func digestTartConfig(params map[string]string, w io.Writer, user string) {
+	if missingFields := checkHasFields([]string{"tart"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart digest-tartconfig --tart <pushURL>")
+		printMissingFields(missingFields, w)
+		return
+	}
+
+	exists, tart := findTart(params["tart"])
+	if !exists {
+		fmt.Fprintln(w, "Err: A tart by that pushURL does not exist")
+		return
+	}
+	if user != "" && !tartmanager.UserHasTartOwnership(user, tart.Owners) {
+		fmt.Fprintln(w, "Err: You ("+user+") are not an owner of the specified tart")
+		return
+	}
+	err := tartmanager.ExecuteCommandFile(path.Join(config.All().DeploymentPath, tart.PushURL, "tartconfig"), tart.PushURL, &w)
+	if err != nil {
+		fmt.Fprintln(w, "Err:", err)
 	}
 }
 

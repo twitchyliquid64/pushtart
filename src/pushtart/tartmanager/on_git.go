@@ -2,6 +2,7 @@ package tartmanager
 
 import (
 	"errors"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -103,7 +104,7 @@ func PostGitRecieve(pushURL, owner string) error {
 
 	//Check if there is a tartconfig file
 	if exists, _ := util.FileExists(path.Join(getDeploymentPath(pushURL), "tartconfig")); exists {
-		err = executeCommandFile(path.Join(getDeploymentPath(pushURL), "tartconfig"), pushURL)
+		err = ExecuteCommandFile(path.Join(getDeploymentPath(pushURL), "tartconfig"), pushURL, nil)
 		if err != nil {
 			logging.Error("tartmanager-git-hooks", "Failed to execute tartconfig: "+err.Error())
 			return err
@@ -117,7 +118,8 @@ func PostGitRecieve(pushURL, owner string) error {
 	return err
 }
 
-func executeCommandFile(fPath, pushURL string) error {
+// ExecuteCommandFile takes the given file, and executes all the lines of the file as tart commands, in the context of the given pushURL.
+func ExecuteCommandFile(fPath, pushURL string, writer *io.Writer) error {
 	b, err := ioutil.ReadFile(fPath)
 	if err != nil {
 		return err
@@ -133,6 +135,9 @@ func executeCommandFile(fPath, pushURL string) error {
 		}
 
 		line = os.Expand(line, getVarFunc)
+		if writer != nil {
+			(*writer).Write([]byte(line + "\r\n"))
+		}
 		spl := strings.Split(line, " ")
 		logging.Info("tartconfig-exec", "["+pushURL+"] "+line)
 		if ok, runFunc := cmd_registry.Command(spl[0]); ok {

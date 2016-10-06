@@ -103,4 +103,5 @@ var commandParams = map[string][]string{
 	"get-config-value":  []string{"--field"},
 	"tart-add-owner":    []string{"--username", "--tart"},
 	"tart-remove-owner": []string{"--username", "--tart"},
+	"digest-tartconfig": []string{"--tart"},
 }
