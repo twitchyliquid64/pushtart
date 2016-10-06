@@ -130,6 +130,18 @@ func main() {
 		case "digest-tartconfig":
 			configInit(params["config"])
 			digestTartConfig(params, os.Stdout, "")
+
+		case "ls-domain-proxies":
+			configInit(params["config"])
+			lsProxyDomains(params, os.Stdout, "")
+
+		case "ls-dns-domains":
+			configInit(params["config"])
+			lsDNSDomains(params, os.Stdout, "")
+
+		case "new-tart":
+			configInit(params["config"])
+			newTart(params, os.Stdout, "")
 		}
 	}
 }
@@ -151,6 +163,9 @@ func registerCommands() {
 	cmd_registry.Register("tart-add-owner", tartAddOwner)
 	cmd_registry.Register("tart-remove-owner", tartRemoveOwner)
 	cmd_registry.Register("digest-tartconfig", digestTartConfig)
+	cmd_registry.Register("ls-domain-proxies", lsProxyDomains)
+	cmd_registry.Register("ls-dns-domains", lsDNSDomains)
+	cmd_registry.Register("new-tart", newTart)
 }
 
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration

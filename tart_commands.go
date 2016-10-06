@@ -33,6 +33,34 @@ func listTarts(params map[string]string, w io.Writer, user string) {
 	}
 }
 
+func newTart(params map[string]string, w io.Writer, user string) {
+	if missingFields := checkHasFields([]string{"tart"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart new-tart --tart <pushURL>")
+		printMissingFields(missingFields, w)
+		return
+	}
+
+	exists, _ := findTart(params["tart"])
+	if exists {
+		fmt.Fprintln(w, "Err: A tart by that pushURL already exists")
+		return
+	}
+	if user == "" {
+		fmt.Fprintln(w, "Err: New tarts can only be presubmitted (created) from the management console.")
+		return
+	}
+	if !strings.HasPrefix(params["tart"], "/") {
+		fmt.Fprintln(w, "Err: pushURLs must start with a '/' character.")
+		return
+	}
+
+	err := tartmanager.PreGitRecieve(params["tart"], user)
+	if err != nil {
+		fmt.Fprintln(w, "Err:", err)
+	}
+	tartmanager.New(params["tart"], user)
+}
+
 func digestTartConfig(params map[string]string, w io.Writer, user string) {
 	if missingFields := checkHasFields([]string{"tart"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart digest-tartconfig --tart <pushURL>")

@@ -87,7 +87,7 @@ func tryMatchExtensionOperation(line string, spl []string) (newLine string, curs
 }
 
 var operationsByExtension = map[string][]string{
-	"DNSSERV":   []string{"set-record", "delete-record", "enable", "enable-recursion", "disable", "disable-recursion"},
+	"DNSSERV":   []string{"set-record", "delete-record", "enable", "enable-recursion", "disable", "disable-recursion", "set-listener"},
 	"HTTPPROXY": []string{"enable", "disable", "set-listener", "set-default-domain", "set-domain-proxy", "delete-domain-proxy", "add-authorization-rule", "remove-authorization-rule"},
 }
 
@@ -104,4 +104,5 @@ var commandParams = map[string][]string{
 	"tart-add-owner":    []string{"--username", "--tart"},
 	"tart-remove-owner": []string{"--username", "--tart"},
 	"digest-tartconfig": []string{"--tart"},
+	"new-tart":          []string{"--tart"},
 }

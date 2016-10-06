@@ -115,6 +115,24 @@ func httpproxySetDomainProxy(params map[string]string, w io.Writer) bool {
 	return true
 }
 
+func lsProxyDomains(params map[string]string, w io.Writer, user string) {
+	for domain, obj := range config.All().Web.DomainProxies {
+		fmt.Fprintln(w, domain+": "+obj.TargetScheme+"://"+obj.TargetHost+":"+strconv.Itoa(obj.TargetPort))
+		for _, authRule := range obj.AuthRules {
+			fmt.Fprintln(w, "\t"+authRule.RuleType+" "+authRule.Username)
+		}
+	}
+}
+
+func lsDNSDomains(params map[string]string, w io.Writer, user string) {
+	for domain, obj := range config.All().DNS.ARecord {
+		fmt.Fprintln(w, "Record Type A: "+domain+" => "+obj.Address+" (TTL="+strconv.Itoa(int(obj.TTL))+")")
+	}
+	for domain, obj := range config.All().DNS.AAAARecord {
+		fmt.Fprintln(w, "Record Type AAAA: "+domain+" => "+obj.Address+" (TTL="+strconv.Itoa(int(obj.TTL))+")")
+	}
+}
+
 func httpproxyRemoveAuthorizationRule(params map[string]string, w io.Writer) bool {
 	if missingFields := checkHasFields([]string{"extension", "operation", "domain", "type"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart extension --extension HTTPProxy --operation remove-authorization-rule --domain <domain> --type <type>")
@@ -236,6 +254,14 @@ func dnsservCommand(params map[string]string, w io.Writer) {
 	}
 	if params["operation"] == "disable-recursion" {
 		config.All().DNS.AllowForwarding = false
+	}
+	if params["operation"] == "set-listener" {
+		if params["listener"] != "" {
+			config.All().DNS.Listener = params["listener"]
+		} else {
+			fmt.Fprintln(w, "Err: Missing fields: listener")
+			return
+		}
 	}
 	if params["operation"] == "set-record" {
 		if strings.ToUpper(params["type"]) == "A" {
