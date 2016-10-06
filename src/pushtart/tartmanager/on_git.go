@@ -10,6 +10,7 @@ import (
 	"pushtart/logging"
 	"pushtart/sshserv/cmd_registry"
 	"pushtart/util"
+	"strconv"
 	"strings"
 )
 
@@ -122,11 +123,16 @@ func executeCommandFile(fPath, pushURL string) error {
 		return err
 	}
 
+	getVarFunc := func(vari string) string {
+		return getVarName(pushURL, vari)
+	}
+
 	for _, line := range strings.Split(string(b), "\n") {
 		if line == "" {
 			continue
 		}
 
+		line = os.Expand(line, getVarFunc)
 		spl := strings.Split(line, " ")
 		logging.Info("tartconfig-exec", "["+pushURL+"] "+line)
 		if ok, runFunc := cmd_registry.Command(spl[0]); ok {
@@ -138,6 +144,19 @@ func executeCommandFile(fPath, pushURL string) error {
 		}
 	}
 	return nil
+}
+
+func getVarName(pushURL, vari string) string {
+	t := Get(pushURL)
+	for _, env := range t.Env {
+		spl := strings.Split(env, "=")
+		if vari == spl[0] {
+			if len(spl) > 1 {
+				return strconv.QuoteToASCII(env[len(spl[0])+1:])
+			}
+		}
+	}
+	return vari
 }
 
 type commandOutputRewriter struct {
