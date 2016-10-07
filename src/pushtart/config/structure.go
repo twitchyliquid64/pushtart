@@ -8,6 +8,7 @@ type Config struct {
 	Path           string   `json:"-"` //path used to represent where the file is currently stored.
 	TLS            struct { //Relative file addresses of the .pem files needed for TLS.
 		Enabled    bool
+		Listener   string
 		PrivateKey string
 		Cert       string
 	}

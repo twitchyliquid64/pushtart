@@ -31,12 +31,12 @@ func health(w http.ResponseWriter, r *http.Request) {
 }
 
 func start() {
-	if !config.All().TLS.Enabled {
-		logging.Info("httpproxy-init", "Initialising HTTP server on ", config.All().Web.Listener)
-		http.ListenAndServe(config.All().Web.Listener, nil)
-	} else {
+	logging.Info("httpproxy-init", "Initialising HTTP server on ", config.All().Web.Listener)
+	http.ListenAndServe(config.All().Web.Listener, nil)
+
+	if config.All().TLS.Enabled {
 		logging.Info("httpproxy-init", "Initialising HTTPS server on ", config.All().Web.Listener)
-		listener, err := tls.Listen("tcp", config.All().Web.Listener, config.TLS())
+		listener, err := tls.Listen("tcp", config.All().TLS.Listener, config.TLS())
 		if err != nil {
 			logging.Info("httpproxy-init", "Error creating listener: "+err.Error())
 			return

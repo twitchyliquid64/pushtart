@@ -49,6 +49,13 @@ func proxyRequestViaNetwork(proxyEntry config.DomainProxy, w http.ResponseWriter
 		return
 	}
 
+	//fetch the user if they exist
+	username, _, ok := r.BasicAuth()
+	var usr config.User
+	if ok && user.Exists(username) {
+		usr = user.Get(username)
+	}
+
 	if config.All().Web.LogAllProxies {
 		logging.Info("httpproxy-main", "Proxying request "+r.Host+" -> "+proxyEntry.TargetHost+":"+strconv.Itoa(proxyEntry.TargetPort)+r.URL.Path)
 	}
@@ -58,6 +65,10 @@ func proxyRequestViaNetwork(proxyEntry config.DomainProxy, w http.ResponseWriter
 		req.URL.Path = r.URL.Path
 		req.URL.Host = proxyEntry.TargetHost + ":" + strconv.Itoa(proxyEntry.TargetPort)
 		req.Host = proxyEntry.TargetHost
+		if usr.Password != "" {
+			req.Header.Add("X-auth-username", username)
+			req.Header.Add("X-auth-name", usr.Name)
+		}
 	}
 
 	prox := httputil.ReverseProxy{
