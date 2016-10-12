@@ -35,7 +35,7 @@ func start() {
 
 	if config.All().TLS.Enabled {
 		go http.ListenAndServe(config.All().Web.Listener, nil)
-		logging.Info("httpproxy-init", "Initialising HTTPS server on ", config.All().Web.Listener)
+		logging.Info("httpproxy-init", "Initialising HTTPS server on ", config.All().TLS.Listener)
 		listener, err := tls.Listen("tcp", config.All().TLS.Listener, config.TLS())
 		if err != nil {
 			logging.Info("httpproxy-init", "Error creating listener: "+err.Error())
