@@ -53,7 +53,7 @@ func redir(w http.ResponseWriter, req *http.Request) {
 		portStr = ""//no point, port 443 is implicit anyway for HTTPS
 	}
 
-	newURL := "https://" + config.All().Web.Domain + portStr + req.RequestURI
+	newURL := "https://" + config.All().Web.DefaultDomain + portStr + req.RequestURI
 	logging.Info("httpproxy-main", "Redirecting ", req.URL, " to ", newURL)
 	http.Redirect(w, req, newURL, http.StatusMovedPermanently)
 }
