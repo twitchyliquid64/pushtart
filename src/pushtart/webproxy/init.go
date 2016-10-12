@@ -23,6 +23,7 @@ func Init() {
 
 func initRoutes() {
 	internalsRouter.HandleFunc("/health", health)
+	internalsRouter.HandleFunc("/status", statusPage)
 	http.HandleFunc("/", main)
 }
 

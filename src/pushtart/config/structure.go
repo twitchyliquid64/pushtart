@@ -2,11 +2,12 @@ package config
 
 //Config represents the global configuration of the system, and the JSON structure on disk.
 type Config struct {
-	Name           string //canonical name to help identify this server
-	DataPath       string
-	DeploymentPath string
-	Path           string   `json:"-"` //path used to represent where the file is currently stored.
-	TLS            struct { //Relative file addresses of the .pem files needed for TLS.
+	Name                string //canonical name to help identify this server
+	DataPath            string
+	DeploymentPath      string
+	OverrideStatusColor string
+	Path                string   `json:"-"` //path used to represent where the file is currently stored.
+	TLS                 struct { //Relative file addresses of the .pem files needed for TLS.
 		Enabled    bool
 		Listener   string
 		PrivateKey string
