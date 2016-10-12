@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"pushtart/config"
+	"pushtart/dnsserv"
 
 	"github.com/cloudfoundry/bytefmt"
 	sigar "github.com/cloudfoundry/gosigar"
@@ -18,6 +19,8 @@ type statusData struct {
 	Mem        *sigar.Mem
 	Swap       *sigar.Swap
 	Background string
+	CacheUsed  int
+	CacheUtil  int
 }
 
 func statusPage(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +64,8 @@ func statusPage(w http.ResponseWriter, r *http.Request) {
 		Mem:        &mem,
 		Swap:       &swap,
 		Background: statusColor,
+		CacheUsed:  dnsserv.GetCacheUsed(),
+		CacheUtil:  dnsserv.GetCacheUsed() / config.All().DNS.LookupCacheSize * 100,
 	})
 	if err != nil {
 		w.Write([]byte("Template Exec Error: " + err.Error()))
@@ -162,7 +167,15 @@ var statusTemplate = `
               </tr>
               <tr>
                 <td>DNS Forwarding Allowed</td>
-                <td>{{.Config.DNS.AllowForwarding}}</td>
+                <td>{{boolcolour .Config.DNS.AllowForwarding}}</td>
+              </tr>
+              <tr>
+                <td>DNS Cache Size</td>
+                <td>{{.Config.DNS.LookupCacheSize}}</td>
+              </tr>
+              <tr>
+                <td>DNS Cache Used</td>
+                <td>{{.CacheUtil}}% ({{.CacheUsed}})</td>
               </tr>
             </tbody>
           </table>

@@ -20,6 +20,14 @@ func initCache() error {
 	return err
 }
 
+// GetCacheUsed returns the number of entries in the LRU cache.
+func GetCacheUsed() int {
+	if lookupCache == nil {
+		return 0
+	}
+	return lookupCache.Len()
+}
+
 func queryA(domain string) ([]dns.RR, error) {
 	cacheVal, cacheHit := lookupCache.Get("A:" + domain)
 	if cacheHit {
