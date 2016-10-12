@@ -32,9 +32,9 @@ func health(w http.ResponseWriter, r *http.Request) {
 
 func start() {
 	logging.Info("httpproxy-init", "Initialising HTTP server on ", config.All().Web.Listener)
-	http.ListenAndServe(config.All().Web.Listener, nil)
 
 	if config.All().TLS.Enabled {
+		go http.ListenAndServe(config.All().Web.Listener, nil)
 		logging.Info("httpproxy-init", "Initialising HTTPS server on ", config.All().Web.Listener)
 		listener, err := tls.Listen("tcp", config.All().TLS.Listener, config.TLS())
 		if err != nil {
@@ -43,5 +43,7 @@ func start() {
 		}
 
 		http.Serve(listener, nil)
+	} else {
+		http.ListenAndServe(config.All().Web.Listener, nil)
 	}
 }
