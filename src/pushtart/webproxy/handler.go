@@ -15,10 +15,15 @@ import (
 
 //routes all requests
 func main(w http.ResponseWriter, r *http.Request) {
+	
 	host := trimHostFieldToJustHostname(r.Host)
 	if host == config.All().Web.DefaultDomain {
 		internalsRouter.ServeHTTP(w, r)
 	} else if isKnownVirtualDomain(host) {
+		if config.All().TLS.Enabled && r.TLS == nil {
+			redir(w, r)
+			return
+		}
 		proxyRequestViaNetwork(config.All().Web.DomainProxies[host], w, r)
 	} else {
 		logging.Warning("httpproxy-main", "Request recieved for unknown virtual domain: "+host)
@@ -37,6 +42,20 @@ func trimHostFieldToJustHostname(hostField string) string {
 		return hostField
 	}
 	return spl[0]
+}
+
+func redir(w http.ResponseWriter, req *http.Request) {
+	portStr := ""
+	if(strings.Contains(config.All().TLS.Listener, ":")) { //if a port is specified in the listening address
+		portStr = config.All().TLS.Listener[strings.Index(config.All().TLS.Listener, ":"):] //get it
+	}
+	if(portStr == ":443") {
+		portStr = ""//no point, port 443 is implicit anyway for HTTPS
+	}
+
+	newURL := "https://" + config.All().Web.Domain + portStr + req.RequestURI
+	logging.Info("httpproxy-main", "Redirecting ", req.URL, " to ", newURL)
+	http.Redirect(w, req, newURL, http.StatusMovedPermanently)
 }
 
 func proxyRequestViaNetwork(proxyEntry config.DomainProxy, w http.ResponseWriter, r *http.Request) {
@@ -59,7 +78,6 @@ func proxyRequestViaNetwork(proxyEntry config.DomainProxy, w http.ResponseWriter
 	if config.All().Web.LogAllProxies {
 		logging.Info("httpproxy-main", "Proxying request "+r.Host+" -> "+proxyEntry.TargetHost+":"+strconv.Itoa(proxyEntry.TargetPort)+r.URL.Path)
 	}
-
 	director := func(req *http.Request) {
 		req.URL.Scheme = proxyEntry.TargetScheme
 		req.URL.Path = r.URL.Path
