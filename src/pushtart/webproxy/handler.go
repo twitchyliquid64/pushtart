@@ -15,7 +15,7 @@ import (
 
 //routes all requests
 func main(w http.ResponseWriter, r *http.Request) {
-	
+
 	host := trimHostFieldToJustHostname(r.Host)
 	if host == config.All().Web.DefaultDomain {
 		internalsRouter.ServeHTTP(w, r)
@@ -46,14 +46,14 @@ func trimHostFieldToJustHostname(hostField string) string {
 
 func redir(w http.ResponseWriter, req *http.Request) {
 	portStr := ""
-	if(strings.Contains(config.All().TLS.Listener, ":")) { //if a port is specified in the listening address
+	if strings.Contains(config.All().TLS.Listener, ":") { //if a port is specified in the listening address
 		portStr = config.All().TLS.Listener[strings.Index(config.All().TLS.Listener, ":"):] //get it
 	}
-	if(portStr == ":443") {
-		portStr = ""//no point, port 443 is implicit anyway for HTTPS
+	if portStr == ":443" {
+		portStr = "" //no point, port 443 is implicit anyway for HTTPS
 	}
 
-	newURL := "https://" + config.All().Web.DefaultDomain + portStr + req.RequestURI
+	newURL := "https://" + req.Host + portStr + req.RequestURI
 	logging.Info("httpproxy-main", "Redirecting ", req.URL, " to ", newURL)
 	http.Redirect(w, req, newURL, http.StatusMovedPermanently)
 }
