@@ -52,6 +52,8 @@ Everything makes sense, except I decided to call a repository in pushtart a 'tar
 
 ## USAGE
 
+See the [command reference](https://github.com/twitchyliquid64/pushtart/wiki) and [tart configuration](https://github.com/twitchyliquid64/pushtart/wiki/Tart%20Configuration) wiki pages.
+
 ```
 USAGE: pushtart <command> [--config <config file>] [command-specific-arguments...]
 if no config file is specified, config.json will be used.
