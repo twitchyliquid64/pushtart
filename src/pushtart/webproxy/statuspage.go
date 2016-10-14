@@ -237,6 +237,7 @@ var statusTemplate = `
                   Restart on Stop: {{boolcolour $value.RestartOnStop}}<br>
                   Restart Delay Seconds: {{$value.RestartDelaySecs}}<br>
                   Logging Stdout/Stderr: {{boolcolour $value.LogStdout}}<br>
+									{{if $value.LastHash}}<br><i>{{$value.LastHash}} - {{$value.LastGitMessage}}</i>{{end}}
                 </td>
               </tr>
               {{end}}
