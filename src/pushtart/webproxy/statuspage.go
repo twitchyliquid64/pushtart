@@ -65,7 +65,7 @@ func statusPage(w http.ResponseWriter, r *http.Request) {
 		Swap:       &swap,
 		Background: statusColor,
 		CacheUsed:  dnsserv.GetCacheUsed(),
-		CacheUtil:  dnsserv.GetCacheUsed() / config.All().DNS.LookupCacheSize * 100,
+		CacheUtil:  dnsserv.GetCacheUsed() * 100 / config.All().DNS.LookupCacheSize,
 	})
 	if err != nil {
 		w.Write([]byte("Template Exec Error: " + err.Error()))
