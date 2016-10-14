@@ -80,4 +80,6 @@ type Tart struct {
 	Env              []string
 	RestartOnStop    bool
 	RestartDelaySecs int
+	LastHash         string
+	LastGitMessage   string
 }

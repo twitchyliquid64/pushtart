@@ -87,6 +87,8 @@ func PostGitRecieve(pushURL, owner string) error {
 		cmd.Output()
 	}
 
+	saveCurrentCommitInformation(pushURL)
+
 	cmd := exec.Command("mkdir", getDeploymentPath(pushURL))
 	_, err := cmd.Output()
 	if err != nil {
@@ -116,6 +118,29 @@ func PostGitRecieve(pushURL, owner string) error {
 		logging.Error("tartmanager-git-hooks", "Failed to start tart: "+err.Error())
 	}
 	return err
+}
+
+func saveCurrentCommitInformation(pushURL string) {
+	cmd := exec.Command("git", "log", "--pretty=format:'%h'", "-n", "1")
+	cmd.Dir = getRepoPath(pushURL)
+	hashBytes, err := cmd.Output()
+	if err != nil {
+		logging.Error("tartmanager-git-hooks", "Failed to read commit hash: "+err.Error())
+		return
+	}
+
+	tart := Get(pushURL)
+	tart.LastHash = string(hashBytes)
+
+	cmd = exec.Command("git", "log", "--pretty=format:'%B'", "-n", "1")
+	cmd.Dir = getRepoPath(pushURL)
+	msgBytes, err := cmd.Output()
+	if err != nil {
+		logging.Error("tartmanager-git-hooks", "Failed to read commit message: "+err.Error())
+		return
+	}
+	tart.LastGitMessage = string(msgBytes)
+	Save(pushURL, tart)
 }
 
 // ExecuteCommandFile takes the given file, and executes all the lines of the file as tart commands, in the context of the given pushURL.
