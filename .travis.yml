@@ -5,9 +5,7 @@ go:
   - master
 
 install:
-- ls
-- git clone https://github.com/twitchyliquid64/pushtart
-- ls
+- cd pushtart
 - export GOPATH=`pwd`
 - go build
-- ls
+- ./pushtart
