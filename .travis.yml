@@ -4,8 +4,7 @@ go:
   - 1.7
   - master
 
-install:
-- cd pushtart
+script:
 - export GOPATH=`pwd`
 - go build
 - ./pushtart
