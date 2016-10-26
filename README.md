@@ -1,5 +1,5 @@
 
-Pushtart - The worlds easiest PaaS.
+Pushtart - The worlds easiest PaaS. [![Build Status](https://travis-ci.org/twitchyliquid64/pushtart.svg?branch=master)](https://travis-ci.org/twitchyliquid64/pushtart) 
 =======================================
 
 Pushtart runs persistantly on any _nix_ box you own. You `git push` projects to it, and pushtart saves them on the box and runs the repositories' `startup.sh`. Its that simple!
