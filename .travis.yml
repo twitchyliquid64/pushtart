@@ -4,3 +4,9 @@ go:
   - 1.7
   - master
 
+install:
+- git clone github.com/twitchyliquid64/pushtart
+- ls
+- export GOPATH=`pwd`
+- go build
+- ls
