@@ -22,6 +22,11 @@ type Config struct {
 		LogAllProxies bool
 	}
 
+	APIKeys []struct {
+		Service string
+		Key     string
+	}
+
 	SSH struct {
 		PubPEM   string
 		PrivPEM  string

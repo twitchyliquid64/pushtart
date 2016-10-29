@@ -1,5 +1,5 @@
 
-Pushtart - The worlds easiest PaaS. [![Build Status](https://travis-ci.org/twitchyliquid64/pushtart.svg?branch=master)](https://travis-ci.org/twitchyliquid64/pushtart) 
+Pushtart - The worlds easiest PaaS. [![Build Status](https://travis-ci.org/twitchyliquid64/pushtart.svg?branch=master)](https://travis-ci.org/twitchyliquid64/pushtart)
 =======================================
 
 Pushtart runs persistantly on any _nix_ box you own. You `git push` projects to it, and pushtart saves them on the box and runs the repositories' `startup.sh`. Its that simple!
@@ -78,6 +78,8 @@ Commands:
 	tart-remove-owner --tart <pushURL> --username <username>
 
 	extension --extension <extension name> [command-specific-arguments...]
+
+	generate-api-key --service <service-name>
 ```
 
 
@@ -113,6 +115,8 @@ The full reference for this extension can be found in the wiki: [DNSServ](https:
 ### HTTPProxy
 
 When enabled, HTTPProxy can act as a reverse proxy for you based on domain. Mappings between domains and target webserver addresses can be managed via commands, or be automatically added by a tart (see documentation about the tartconfig file).
+
+Other features become available through the HTTPProxy - including a status page and a JSON-RPC2 api.
 
 The full reference for this extension can be found in the wiki: [HTTPProxy](https://github.com/twitchyliquid64/pushtart/wiki/HTTPProxy)
 

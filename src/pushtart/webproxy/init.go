@@ -25,6 +25,7 @@ func initRoutes() {
 	internalsRouter.HandleFunc("/health", health)
 	internalsRouter.HandleFunc("/status", statusPage)
 	internalsRouter.HandleFunc("/pubrpc", pubRPCInit().ServeHTTP)
+	internalsRouter.HandleFunc("/rpc", privRPCInit().ServeHTTP)
 	http.HandleFunc("/", main)
 }
 

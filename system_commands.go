@@ -6,6 +6,7 @@ import (
 	"io"
 	"pushtart/config"
 	"pushtart/logging"
+	"pushtart/util"
 	"reflect"
 	"strconv"
 	"strings"
@@ -129,4 +130,35 @@ func strToVal(in string, template reflect.Value) (reflect.Value, error) {
 		return reflect.ValueOf(vi), err
 	}
 	return reflect.ValueOf(nil), errors.New("Don't know how to process " + template.Kind().String())
+}
+
+func generateAPIKey(params map[string]string, w io.Writer, user string) {
+	if missingFields := checkHasFields([]string{"service"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart generate-api-key --service <service-name>")
+		printMissingFields(missingFields, w)
+		return
+	}
+
+	var newAPIKeyList []struct {
+		Service string
+		Key     string
+	}
+	for _, entry := range config.All().APIKeys {
+		if entry.Service != params["service"] {
+			newAPIKeyList = append(newAPIKeyList, entry)
+		}
+	}
+
+	k := util.RandAlphaKey(16)
+	newAPIKeyList = append(newAPIKeyList, struct {
+		Service string
+		Key     string
+	}{
+		Service: params["service"],
+		Key:     k,
+	})
+
+	fmt.Fprintln(w, k)
+	config.All().APIKeys = newAPIKeyList
+	config.Flush()
 }

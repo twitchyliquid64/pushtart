@@ -43,6 +43,7 @@ func help(params map[string]string, w io.Writer, user string) {
 	fmt.Fprintln(w, "\ttart-add-owner --tart <pushURL> --username <username>")
 	fmt.Fprintln(w, "\ttart-remove-owner --tart <pushURL> --username <username>")
 	fmt.Fprintln(w, "\textension --extension <extension name> [command-specific-arguments...]")
+	fmt.Fprintln(w, "\tgenerate-api-key --service <service-name>")
 
 	if w != os.Stdout {
 		fmt.Fprintln(w, "\tlogs")
@@ -142,6 +143,10 @@ func main() {
 		case "new-tart":
 			configInit(params["config"])
 			newTart(params, os.Stdout, "")
+
+		case "generate-api-key":
+			configInit(params["config"])
+			generateAPIKey(params, os.Stdout, "")
 		}
 	}
 }
@@ -166,6 +171,7 @@ func registerCommands() {
 	cmd_registry.Register("ls-domain-proxies", lsProxyDomains)
 	cmd_registry.Register("ls-dns-domains", lsDNSDomains)
 	cmd_registry.Register("new-tart", newTart)
+	cmd_registry.Register("generate-api-key", generateAPIKey)
 }
 
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration
