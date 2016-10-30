@@ -23,7 +23,12 @@ func pubRPCInit() http.Handler {
 func privRPCInit() http.Handler {
 	rServ := rpc.NewServer()
 	rpcServ := new(privrpc.Service)
-	err := rServ.Register(rpcServ)
+	tartRPCServ := new(privrpc.Tarts)
+	err := rServ.Register(tartRPCServ)
+	if err != nil {
+		logging.Error("jsonrpc-init", "rpc.Register() (tarts) error: "+err.Error())
+	}
+	err = rServ.Register(rpcServ)
 	if err != nil {
 		logging.Error("jsonrpc-init", "rpc.Register() (priv) error: "+err.Error())
 	}
