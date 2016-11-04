@@ -11,21 +11,21 @@ import (
 	"github.com/powerman/rpc-codec/jsonrpc2"
 )
 
-//Tarts represents the authenticated RPC server for tart-related methods, available via a webproxy URI.
+// Tarts represents the authenticated RPC server for tart-related methods, available via a webproxy URI.
 type Tarts int
 
-//GetTartArgument represents the parameters passed to the GetTart RPC.
+// GetTartArgument represents the parameters passed to the GetTart RPC.
 type GetTartArgument struct {
 	APIKey  string
 	PushURL string
 }
 
-//GetTartResult represents the result of a successful GetTart RPC.
+// GetTartResult represents the result of a successful GetTart RPC.
 type GetTartResult struct {
 	Tart config.Tart
 }
 
-//GetTart RPC returns a specific tart
+// GetTart RPC returns a specific tart
 func (t *Tarts) GetTart(arg *GetTartArgument, result *GetTartResult) error {
 	var serviceName string
 	var ok bool
@@ -45,12 +45,12 @@ func (t *Tarts) GetTart(arg *GetTartArgument, result *GetTartResult) error {
 	return nil
 }
 
-//ArbitrarySuccessResult represents the result of a successful RPC, where only success needs to be indicated.
+// ArbitrarySuccessResult represents the result of a successful RPC, where only success needs to be indicated.
 type ArbitrarySuccessResult struct {
 	Success bool
 }
 
-//EnableOutputLogging RPC enables Stdout/Error logging to the main logger for a given tart.
+// EnableOutputLogging RPC enables Stdout/Error logging to the main logger for a given tart.
 func (t *Tarts) EnableOutputLogging(arg map[string]string, result *ArbitrarySuccessResult) error {
 	var serviceName string
 	var ok bool
@@ -77,7 +77,7 @@ func (t *Tarts) EnableOutputLogging(arg map[string]string, result *ArbitrarySucc
 	return nil
 }
 
-//SetName RPC sets the human-readable name for a given tart.
+// SetName RPC sets the human-readable name for a given tart.
 func (t *Tarts) SetName(arg map[string]string, result *ArbitrarySuccessResult) error {
 	var serviceName string
 	var ok bool
@@ -100,7 +100,7 @@ func (t *Tarts) SetName(arg map[string]string, result *ArbitrarySuccessResult) e
 	return nil
 }
 
-//SetEnv RPC sets a key=value environment variable for the tart.
+// SetEnv RPC sets a key=value environment variable for the tart.
 func (t *Tarts) SetEnv(arg map[string]string, result *ArbitrarySuccessResult) error {
 	var serviceName string
 	var ok bool
@@ -123,7 +123,7 @@ func (t *Tarts) SetEnv(arg map[string]string, result *ArbitrarySuccessResult) er
 	return nil
 }
 
-//DelEnv RPC deletes a key from a tarts environment variable list if it exists.
+// DelEnv RPC deletes a key from a tarts environment variable list if it exists.
 func (t *Tarts) DelEnv(arg map[string]string, result *ArbitrarySuccessResult) error {
 	var serviceName string
 	var ok bool
@@ -146,7 +146,7 @@ func (t *Tarts) DelEnv(arg map[string]string, result *ArbitrarySuccessResult) er
 	return nil
 }
 
-//Start RPC starts a tart.
+// Start RPC starts a tart.
 func (t *Tarts) Start(arg map[string]string, result *ArbitrarySuccessResult) error {
 	var serviceName string
 	var ok bool
@@ -168,7 +168,7 @@ func (t *Tarts) Start(arg map[string]string, result *ArbitrarySuccessResult) err
 	return errors.New("Could not find tart")
 }
 
-//Stop RPC starts a tart.
+// Stop RPC starts a tart.
 func (t *Tarts) Stop(arg map[string]string, result *ArbitrarySuccessResult) error {
 	var serviceName string
 	var ok bool
@@ -190,7 +190,7 @@ func (t *Tarts) Stop(arg map[string]string, result *ArbitrarySuccessResult) erro
 	return errors.New("Could not find tart")
 }
 
-//Init RPC creates a tart's metadata without it actually existing yet.
+// Init RPC creates a tart's metadata without it actually existing yet.
 func (t *Tarts) Init(arg map[string]string, result *ArbitrarySuccessResult) error {
 	var serviceName string
 	var ok bool

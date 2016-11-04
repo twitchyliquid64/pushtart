@@ -24,9 +24,14 @@ func privRPCInit() http.Handler {
 	rServ := rpc.NewServer()
 	rpcServ := new(privrpc.Service)
 	tartRPCServ := new(privrpc.Tarts)
+	DNSRPCServ := new(privrpc.DNSExtension)
 	err := rServ.Register(tartRPCServ)
 	if err != nil {
 		logging.Error("jsonrpc-init", "rpc.Register() (tarts) error: "+err.Error())
+	}
+	err = rServ.Register(DNSRPCServ)
+	if err != nil {
+		logging.Error("jsonrpc-init", "rpc.Register() (DNS) error: "+err.Error())
 	}
 	err = rServ.Register(rpcServ)
 	if err != nil {

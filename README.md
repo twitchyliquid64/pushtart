@@ -6,6 +6,8 @@ Pushtart runs persistantly on any _nix_ box you own. You `git push` projects to 
 
 There is also a simple (but fully featured) user management system, as well as the ability to set environment variables on each of your deployments (keep sensitive information out of your repositories!).
 
+Under the hood pushtart runs a SSH server for git commands to hook up to. You can also administer pushtart by ssh'ing in using a shell/puTTy. You can also enable extensions which provide generally useful features which go hand-in-hand with running network services, such as a HTTP(S) proxy and a DNS server.
+
 ## Getting started
 
 To get started, we need to build the program, run `pushtart make-config` to generate a configuration file, and setup a user with `pushtart make-user`. Then we are ready to run!
@@ -123,11 +125,9 @@ The full reference for this extension can be found in the wiki: [HTTPProxy](http
 
 ## TODO
 
- - [x] Prevent tart management commands for tarts a user doesnt own
- - [x] Authentication for HTTP proxy
- - [x] Pass username, name etc in proxy headers
- - [x] Support TLS certificates and HTTPS endpoint
- - [x] Complete command reference wiki page, add HTTPProxy wiki page
- - [ ] JSON-RPC API for information about users/DNS/running-tarts/system-resources
+ - [x] JSON-RPC API for information about tarts
+ - [x] JSON-RPC API for information about system-resources
+ - [x] JSON-RPC API for information about DNS
+ - [ ] JSON-RPC API for information about users
  - [ ] Command to delete a tart / user
  - [ ] Add user management wiki page
