@@ -30,6 +30,8 @@ git push pushtart_server master
 ```
 :DD
 
+*NB: Dont forget to put your startup code in `startup.sh`*
+
 ### Management interface
 
 You can actually SSH into pushtart, and run the same commands you can on the unix command line (except make-config, and importing a SSH key).

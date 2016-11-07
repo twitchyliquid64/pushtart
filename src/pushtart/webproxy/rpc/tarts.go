@@ -209,6 +209,34 @@ func (t *Tarts) Init(arg map[string]string, result *ArbitrarySuccessResult) erro
 		return err
 	}
 	tartmanager.New(arg["PushURL"], arg["User"])
+	result.Success = true
+	return nil
+}
+
+// AddOwner RPC adds an owner to an existing tart.
+func (t *Tarts) AddOwner(arg map[string]string, result *ArbitrarySuccessResult) error {
+	var serviceName string
+	var ok bool
+	if serviceName, ok = checkAuth(arg["APIKey"]); ok {
+		logging.Info("rpc", "["+serviceName+"] AddOwner("+arg["PushURL"]+", "+arg["Username"]+")")
+	} else {
+		logging.Warning("rpc", "Invalid auth for AddOwner("+arg["PushURL"]+")")
+		return jsonrpc2.NewError(403, "Invalid API key")
+	}
+
+	if !tartmanager.Exists(arg["PushURL"]) {
+		return errors.New("Tart does not exist")
+	}
+	tart := tartmanager.Get(arg["PushURL"])
+
+	for _, o := range tart.Owners {
+		if o == arg["Username"] {
+			return errors.New("User is already an owner")
+		}
+	}
+
+	tart.Owners = append(tart.Owners, arg["Username"])
+	tartmanager.Save(arg["PushURL"], tart)
 	return nil
 }
 
