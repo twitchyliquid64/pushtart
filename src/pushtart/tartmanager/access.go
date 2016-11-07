@@ -43,6 +43,7 @@ func New(pushURL, owner string) {
 		PID:              -1,
 		RestartDelaySecs: 30,
 		RestartOnStop:    false,
+		LogStdout:        true,
 	})
 }
 
