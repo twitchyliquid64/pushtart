@@ -1,0 +1,27 @@
+<!doctype html>
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+  <head>
+    <title>Pushtart auther popup</title>
+
+    <style>
+    body{
+      min-width: 400px;
+    }
+    </style>
+    <script src="popup.js"></script>
+  </head>
+  <body>
+    <h3 style="display: inline-block;"> <img src="pt_red.png" />Pushtart Auther</h3>
+    <p><i>Automatically authenticates you to known pushtart websites.</i></p>
+    <p>TODO actually implement</p>
+
+    <h5>Registered domains</h5>
+
+    <p><b>Status: </b><span id="status">loading...</span></p>
+  </body>
+</html>
