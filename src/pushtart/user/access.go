@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"pushtart/config"
 )
 
@@ -22,6 +23,25 @@ func Save(username string, usr config.User) {
 	}
 	config.All().Users[username] = usr
 	config.Flush()
+}
+
+//Delete removes the specified user from the system.
+func Delete(username string) error {
+	if config.All().Users == nil {
+		config.All().Users = map[string]config.User{}
+	}
+
+	for _, tart := range config.All().Tarts {
+		for _, owner := range tart.Owners {
+			if owner == username {
+				return errors.New("Cannot delete a user who still owns a tart")
+			}
+		}
+	}
+
+	delete(config.All().Users, username)
+	config.Flush()
+	return nil
 }
 
 //New creates a new user wit the given username, writing it to global configuration before flushing to disk.

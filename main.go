@@ -30,8 +30,10 @@ func help(params map[string]string, w io.Writer, user string) {
 	if w == os.Stdout {
 		fmt.Fprintln(w, "\timport-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>] (Not available from SSH shell)")
 	}
-	fmt.Fprintln(w, "\tmake-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]")
-	fmt.Fprintln(w, "\tedit-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]")
+	fmt.Fprintln(w, "\tmake-user --username <username> [--password <password] [--name <name] [--allow-ssh-password yes/no]")
+	fmt.Fprintln(w, "\tedit-user --username <username> [--password <password] [--name <name] [--allow-ssh-password yes/no]")
+	fmt.Fprintln(w, "\tdelete-user --username <username>")
+
 	fmt.Fprintln(w, "\tls-users")
 	fmt.Fprintln(w, " ")
 	fmt.Fprintln(w, "\tls-tarts")
@@ -44,6 +46,7 @@ func help(params map[string]string, w io.Writer, user string) {
 	fmt.Fprintln(w, "\ttart-remove-owner --tart <pushURL> --username <username>")
 	fmt.Fprintln(w, "\textension --extension <extension name> [command-specific-arguments...]")
 	fmt.Fprintln(w, "\tgenerate-api-key --service <service-name>")
+	fmt.Fprintln(w, "\textension-help [--extension <extension>]")
 
 	if w != os.Stdout {
 		fmt.Fprintln(w, "\tlogs")
@@ -147,6 +150,14 @@ func main() {
 		case "generate-api-key":
 			configInit(params["config"])
 			generateAPIKey(params, os.Stdout, "")
+
+		case "delete-user":
+			configInit(params["config"])
+			deleteUser(params, os.Stdout, "")
+
+		case "extension-help":
+			configInit(params["config"])
+			extensionHelp(params, os.Stdout, "")
 		}
 	}
 }
@@ -172,6 +183,8 @@ func registerCommands() {
 	cmd_registry.Register("ls-dns-domains", lsDNSDomains)
 	cmd_registry.Register("new-tart", newTart)
 	cmd_registry.Register("generate-api-key", generateAPIKey)
+	cmd_registry.Register("delete-user", deleteUser)
+	cmd_registry.Register("extension-help", extensionHelp)
 }
 
 // configInit loads the configuration file from the command line. If there was an error loading the file, a default configuration

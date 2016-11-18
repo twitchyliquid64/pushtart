@@ -88,6 +88,24 @@ func makeUser(params map[string]string, w io.Writer, callingUser string) {
 	saveUser(params["username"], usr, params)
 }
 
+func deleteUser(params map[string]string, w io.Writer, callingUser string) {
+	if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
+		fmt.Fprintln(w, "USAGE: pushtart delete-user --username <username> [--config <config file>]")
+		printMissingFields(missingFields, w)
+		return
+	}
+
+	if !user.Exists(params["username"]) {
+		fmt.Fprintln(w, "Err: user does not exist")
+		return
+	}
+
+	e := user.Delete(params["username"])
+	if e != nil {
+		fmt.Fprintln(w, "Err: "+e.Error())
+	}
+}
+
 func importSSHKey(params map[string]string, w io.Writer, callingUser string) {
 	if missingFields := checkHasFields([]string{"username"}, params); len(missingFields) > 0 {
 		fmt.Fprintln(w, "USAGE: pushtart import-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>]")

@@ -71,6 +71,7 @@ Commands:
 	import-ssh-key --username <username> [--pub-key-file <path-to-.pub-file>] (Not available from SSH shell)
 	make-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]
 	edit-user --username <username [--password <password] [--name <name] [--allow-ssh-password yes/no]
+	delete-user --username <username>
 	ls-users
 
 	ls-tarts
@@ -82,6 +83,7 @@ Commands:
 	tart-remove-owner --tart <pushURL> --username <username>
 
 	extension --extension <extension name> [command-specific-arguments...]
+	extension-help [--extension <extension name>]
 
 	generate-api-key --service <service-name>
 ```
@@ -131,5 +133,5 @@ The full reference for this extension can be found in the wiki: [HTTPProxy](http
  - [x] JSON-RPC API for information about system-resources
  - [x] JSON-RPC API for information about DNS
  - [ ] JSON-RPC API for information about users
- - [ ] Command to delete a tart / user
+ - [ ] Command to delete a tart
  - [ ] Add user management wiki page

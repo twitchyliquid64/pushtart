@@ -94,6 +94,7 @@ var operationsByExtension = map[string][]string{
 var commandParams = map[string][]string{
 	"edit-user":         []string{"--username", "--password", "--name", "--allow-ssh-password"},
 	"make-user":         []string{"--username", "--password", "--name", "--allow-ssh-password"},
+	"delete-user":       []string{"--username"},
 	"start-tart":        []string{"--tart"},
 	"stop-tart":         []string{"--tart"},
 	"edit-tart":         []string{"--tart", "--name", "--set-env", "--delete-env", "--log-stdout"},
@@ -105,4 +106,5 @@ var commandParams = map[string][]string{
 	"tart-remove-owner": []string{"--username", "--tart"},
 	"digest-tartconfig": []string{"--tart"},
 	"new-tart":          []string{"--tart"},
+	"extension-help":    []string{"--extension"},
 }

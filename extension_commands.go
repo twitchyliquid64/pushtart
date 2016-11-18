@@ -292,3 +292,45 @@ func dnsservCommand(params map[string]string, w io.Writer) {
 
 	config.Flush()
 }
+
+func extensionHelp(params map[string]string, w io.Writer, user string) {
+	if strings.ToUpper(params["extension"]) == "HTTPPROXY" || params["extension"] == "" {
+		fmt.Fprintln(w, "HTTPProxy:")
+		fmt.Fprintln(w, "\tEnable:  extension --extension HTTPProxy --operation enable")
+		fmt.Fprintln(w, "\tDisable: extension --extension HTTPProxy --operation disable")
+		fmt.Fprintln(w, "")
+		fmt.Fprintln(w, "\tSet-listener: extension --extension HTTPProxy --operation set-listener --listener \":8080\" (all interfaces, port 8080)")
+		fmt.Fprintln(w, "\tSet-default-domain: extension --extension HTTPProxy --operation set-default-domain --domain \"localhost\"")
+		fmt.Fprintln(w, "")
+		fmt.Fprintln(w, "\tList reverse proxies: ls-domain-proxies")
+		fmt.Fprintln(w, "\tList all configuration (all extensions actually): extension --operation show-config")
+		fmt.Fprintln(w, "")
+		fmt.Fprintln(w, "\tAdd reverse proxy: extension --extension HTTPProxy --operation set-domain-proxy --domain <domain> --targetport <destination-port> --scheme <destination-scheme> --targethost <host-field-at-destination>")
+		fmt.Fprintln(w, "\t - Scheme can be http or https. For most hosts domain and targethost will be identical.")
+		fmt.Fprintln(w, "\tDelete reverse proxy: extension --extension HTTPProxy --operation delete-domain-proxy --domain <domain>")
+		fmt.Fprintln(w, "")
+		fmt.Fprintln(w, "\tAdd authorization rule: extension --extension HTTPProxy --operation add-authorization-rule --type USR_ALLOW --domain <domain> --username <username>")
+		fmt.Fprintln(w, "\t or,")
+		fmt.Fprintln(w, "\t  extension --extension HTTPProxy --operation add-authorization-rule --type USR_DENY --domain testdomain --username <username>")
+		fmt.Fprintln(w, "\t or,")
+		fmt.Fprintln(w, "\t  extension --extension HTTPProxy --operation add-authorization-rule --type ALLOW_ANY_USER --domain testdomain")
+		fmt.Fprintln(w, "\tDelete authorization rule: extension --extension HTTPProxy --operation remove-authorization-rule --domain <domain> --type <rule-type> [--username <username>]")
+		fmt.Fprintln(w, "\t(If there are no rules set on a reverse proxy, ALLOW_ANY_USER is assumed.)")
+		fmt.Fprintln(w, "")
+
+	} else if strings.ToUpper(params["extension"]) == "DNSSERV" || params["extension"] == "" {
+		fmt.Fprintln(w, "DNSServ:")
+		fmt.Fprintln(w, "\tEnable: extension --extension DNSServ --operation enable")
+		fmt.Fprintln(w, "\tDisable: extension --extension DNSServ --operation disable")
+		fmt.Fprintln(w, "")
+		fmt.Fprintln(w, "\tSet-listener: extension --extension DNSServ --operation set-listener --listener \":53\" (Sets up the server to listen on all interfaces on port 53)")
+		fmt.Fprintln(w, "\tEnable-recursion: extension --extension DNSServ --operation enable-recursion")
+		fmt.Fprintln(w, "\tSet-recursion-lookup-cache-size: extension --extension DNSServ --cache-size <num-cache-entries>")
+		fmt.Fprintln(w, "")
+		fmt.Fprintln(w, "\tList our DNS Domains: ls-dns-domains")
+		fmt.Fprintln(w, "")
+		fmt.Fprintln(w, "\tAdd A record: extension --extension DNSServ --operation set-record --type A --domain <domain> --address <IP> --ttl <TTL-in-seconds>")
+		fmt.Fprintln(w, "\tDelete A record: extension --extension DNSServ --operation delete-record --domain <domain>")
+		fmt.Fprintln(w, "")
+	}
+}
