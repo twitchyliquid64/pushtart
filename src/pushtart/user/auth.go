@@ -50,8 +50,14 @@ func CheckUserPasswordWeb(username, password string) bool {
 		return false
 	}
 
+	// Speedup for web clients making heaps of requests - bcrypt is expensive
+	if isValidFromCacheHit(username, password) {
+		return true
+	}
+
 	err := util.ComparePassHash(usrStruct.Password, username, password)
 	if err == nil { //if err == nil the passwords match
+		cacheCorrectAuthEntry(username, password)
 		return true
 	}
 
