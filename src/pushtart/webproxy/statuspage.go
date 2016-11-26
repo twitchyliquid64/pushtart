@@ -6,6 +6,10 @@ import (
 	"net/http"
 	"pushtart/config"
 	"pushtart/dnsserv"
+	"pushtart/logging"
+	"pushtart/tartmanager"
+	"strconv"
+	"time"
 
 	"github.com/cloudfoundry/bytefmt"
 	sigar "github.com/cloudfoundry/gosigar"
@@ -44,11 +48,34 @@ func statusPage(w http.ResponseWriter, r *http.Request) {
 
 	funcMap := template.FuncMap{
 		"bytesFormat": bytefmt.ByteSize,
+		"percent": func(sub, total uint64) string {
+			if total == 0 {
+				return "NaN"
+			}
+
+			p := (sub * 100) / total
+			return strconv.Itoa(int(p))
+		},
 		"boolcolour": func(in bool) template.HTML {
 			if in {
 				return template.HTML("<span style=\"color: #00AA00;\">Yes</span>")
 			}
 			return template.HTML("<span style=\"color: #AA0000;\">No</span>")
+		},
+		"runStats": func(in string) *tartmanager.RunMetrics {
+			m, err2 := tartmanager.GetStats(in)
+			if err2 != nil {
+				logging.Error("status-page", "Failed to get tart stats: ", err)
+				return nil
+			}
+			return m
+		},
+		"timeformat": func(in uint64) string {
+			t := time.Millisecond * time.Duration(in)
+			s := strconv.Itoa(int(t.Hours())) + " hours, "
+			s += strconv.Itoa(int(t.Minutes())) + " minutes, "
+			s += strconv.Itoa(int(t.Seconds())) + " seconds."
+			return s
 		},
 	}
 	t, err := template.New("status").Funcs(funcMap).Parse(statusTemplate)
@@ -136,6 +163,10 @@ var statusTemplate = `
               <tr>
                 <td>Deployment Path</td>
                 <td>{{.Config.DeploymentPath}}</td>
+              </tr>
+							<tr>
+                <td>Run Sentry Interval</td>
+                <td>{{.Config.RunSentryInterval}} seconds</td>
               </tr>
               <tr>
                 <td>HTTP Proxy Enabled</td>
@@ -228,6 +259,7 @@ var statusTemplate = `
               </tr>
             </thead>
             <tbody>
+							{{$memtotal := .Mem.Total}}
               {{range $key, $value := .Config.Tarts}}
               <tr>
                 <td>{{$value.Name}} ({{$key}})</td>
@@ -237,7 +269,15 @@ var statusTemplate = `
                   Restart on Stop: {{boolcolour $value.RestartOnStop}}<br>
                   Restart Delay Seconds: {{$value.RestartDelaySecs}}<br>
                   Logging Stdout/Stderr: {{boolcolour $value.LogStdout}}<br>
-									{{if $value.LastHash}}<br><i>{{$value.LastHash}} - {{$value.LastGitMessage}}</i>{{end}}
+
+									{{if $value.IsRunning}}
+										{{$stats := runStats $key}}
+										<br>
+										Real Memory: {{bytesFormat $stats.Mem.Resident}} ({{percent $stats.Mem.Resident $memtotal}}%)<br>
+										CPU: {{timeformat $stats.Time.Total}}<br>
+									{{end}}
+
+									{{if $value.LastHash}}<br><i>{{$value.LastHash}} - {{$value.LastGitMessage}}</i><br>{{end}}
                 </td>
               </tr>
               {{end}}

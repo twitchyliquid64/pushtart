@@ -45,6 +45,30 @@ func (t *Tarts) GetTart(arg *GetTartArgument, result *GetTartResult) error {
 	return nil
 }
 
+// GetTartStats RPC returns a running tarts system stats.
+func (t *Tarts) GetTartStats(arg *GetTartArgument, result *tartmanager.RunMetrics) error {
+	var serviceName string
+	var ok bool
+	if serviceName, ok = checkAuth(arg.APIKey); ok {
+		logging.Info("rpc", "["+serviceName+"] GetTart("+arg.PushURL+")")
+	} else {
+		logging.Warning("rpc", "Invalid auth for GetTart("+arg.PushURL+")")
+		return jsonrpc2.NewError(403, "Invalid API key")
+	}
+
+	if tartmanager.Exists(arg.PushURL) {
+		var err error
+		result, err = tartmanager.GetStats(arg.PushURL)
+		if err != nil {
+			return err
+		}
+	} else {
+		return errors.New("Could not find tart")
+	}
+
+	return nil
+}
+
 // ArbitrarySuccessResult represents the result of a successful RPC, where only success needs to be indicated.
 type ArbitrarySuccessResult struct {
 	Success bool
