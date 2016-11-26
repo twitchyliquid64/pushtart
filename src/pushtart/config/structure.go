@@ -7,6 +7,7 @@ type Config struct {
 	DeploymentPath      string
 	OverrideStatusColor string
 	Path                string   `json:"-"` //path used to represent where the file is currently stored.
+	RunSentryInterval   int      //Seconds between executions of the runsentry.
 	TLS                 struct { //Relative file addresses of the .pem files needed for TLS.
 		Enabled    bool
 		Listener   string

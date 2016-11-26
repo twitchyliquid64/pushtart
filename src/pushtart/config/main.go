@@ -2,6 +2,7 @@ package config
 
 import (
 	"crypto/tls"
+	"errors"
 	"pushtart/logging"
 )
 
@@ -28,6 +29,11 @@ func Load(fpath string) error {
 			logging.Error("config", "config.Load() tls error:", err)
 			return err
 		}
+	}
+
+	if gConfig.RunSentryInterval == 0 {
+		logging.Error("config", "RunSentryInterval cannot be 0")
+		return errors.New("RunSentryInterval cannot be 0")
 	}
 
 	return nil

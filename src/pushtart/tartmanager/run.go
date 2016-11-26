@@ -61,6 +61,7 @@ func Start(pushURL string) error {
 		return err
 	}
 
+	blacklistPidFromSentry(cmd.Process.Pid)
 	tart.PID = cmd.Process.Pid
 	tart.IsRunning = true
 	Save(pushURL, tart)
@@ -80,6 +81,7 @@ func Stop(pushURL string) error {
 
 	logging.Info("tartmanager-run", "Killing running tart with PID ", tart.PID)
 
+	removePidFromSentryBlacklist(tart.PID)
 	proc, err := os.FindProcess(tart.PID)
 	if err != nil {
 		if strings.Contains(err.Error(), "process already finished") {
@@ -88,6 +90,7 @@ func Stop(pushURL string) error {
 			return err
 		}
 	}
+
 	tart.PID = -1
 	tart.IsRunning = false
 	Save(pushURL, tart)
@@ -100,4 +103,9 @@ func Stop(pushURL string) error {
 		return nil
 	}
 	return err
+}
+
+func killAllChildren(pid int) {
+	var discoveredChildren = map[int]bool{}
+
 }

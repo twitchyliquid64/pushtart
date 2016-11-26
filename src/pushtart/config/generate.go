@@ -64,6 +64,10 @@ func Generate(fpath string) (err error) {
 		gConfig.Web.Listener = ":8080"
 	}
 
+	if gConfig.RunSentryInterval == 0 {
+		gConfig.RunSentryInterval = 180 // 3 minutes
+	}
+
 	lockConfig(gConfig.Path)
 	return writeConfig()
 }

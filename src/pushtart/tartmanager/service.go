@@ -51,6 +51,8 @@ func tartLogRoutine(tart config.Tart, reader io.ReadCloser, errReader io.ReadClo
 			tart.IsRunning = false
 			tart.PID = -1
 			Save(tart.PushURL, tart)
+			removePidFromSentryBlacklist(tart.PID)
+
 			if tart.RestartOnStop {
 				logging.Info("tartmanager-service", tart.Name+" is restarting.")
 				Start(tart.PushURL)
