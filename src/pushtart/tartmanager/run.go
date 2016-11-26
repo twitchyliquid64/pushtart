@@ -9,6 +9,8 @@ import (
 	"pushtart/util"
 	"strings"
 	"time"
+
+	gsig "github.com/jondot/gosigar"
 )
 
 //ErrTartNotFound is returned if a stop/start is requested but the tart specified by pushURL could not be found.
@@ -96,6 +98,11 @@ func Stop(pushURL string) error {
 	Save(pushURL, tart)
 	proc.Signal(os.Interrupt)
 	time.Sleep(400 * time.Millisecond)
+
+	err = killAllChildren(proc.Pid) //recursively kill the deepest children first
+	if err != nil {
+		return err
+	}
 	err = proc.Kill()
 
 	if err != nil && strings.Contains(err.Error(), "process already finished") {
@@ -105,7 +112,35 @@ func Stop(pushURL string) error {
 	return err
 }
 
-func killAllChildren(pid int) {
-	var discoveredChildren = map[int]bool{}
+func killAllChildren(pid int) error {
+	procs := gsig.ProcList{}
+	err := procs.Get()
+	if err != nil {
+		return err
+	}
 
+	for _, cPid := range procs.List {
+		processInfo := gsig.ProcState{}
+		if err := processInfo.Get(cPid); err != nil {
+			logging.Warning("tartmanager-run-janitor", "ProcState.Get(): ", err)
+			continue
+		}
+
+		if processInfo.Ppid == pid {
+			logging.Info("tartmanager-run-janitor", "Child process: ", processInfo.Name, " (", cPid, ")")
+			proc, err := os.FindProcess(cPid)
+			if err != nil {
+				return err
+			}
+			err = killAllChildren(cPid)
+			if err != nil {
+				return err
+			}
+			err = proc.Kill()
+			if err != nil {
+				logging.Info("tartmanager-run-janitor", "Failed to kill child: ", cPid, " - ", err)
+			}
+		}
+	}
+	return nil
 }

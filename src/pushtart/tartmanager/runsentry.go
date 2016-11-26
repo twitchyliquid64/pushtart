@@ -51,7 +51,6 @@ func runSentry() {
 				}
 				continue
 			}
-			logging.Info("run-sentry", ps)
 		}
 	}
 }
@@ -59,8 +58,6 @@ func runSentry() {
 // RunSentry is the entrypoint to the runsentry goroutine.
 func RunSentry() {
 	for {
-		logging.Info("run-sentry", "Starting with blacklist: ", sentryBlacklist)
-
 		runSentry()
 		time.Sleep(time.Second * time.Duration(config.All().RunSentryInterval))
 	}
