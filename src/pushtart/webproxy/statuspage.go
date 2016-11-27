@@ -73,8 +73,8 @@ func statusPage(w http.ResponseWriter, r *http.Request) {
 		"timeformat": func(in uint64) string {
 			t := time.Millisecond * time.Duration(in)
 			s := strconv.Itoa(int(t.Hours())) + " hours, "
-			s += strconv.Itoa(int(t.Minutes())) + " minutes, "
-			s += strconv.Itoa(int(t.Seconds())) + " seconds."
+			s += strconv.Itoa(int(t.Minutes()) % 60) + " minutes, "
+			s += strconv.Itoa(int(t.Seconds()) % 60) + " seconds."
 			return s
 		},
 	}

@@ -57,11 +57,15 @@ func (t *Tarts) GetTartStats(arg *GetTartArgument, result *tartmanager.RunMetric
 	}
 
 	if tartmanager.Exists(arg.PushURL) {
-		var err error
-		result, err = tartmanager.GetStats(arg.PushURL)
+		res, err := tartmanager.GetStats(arg.PushURL)
 		if err != nil {
 			return err
 		}
+		result.Mem = res.Mem
+		result.Time = res.Time
+		result.State = res.State
+		result.Children = res.Children
+		result.PID = res.PID
 	} else {
 		return errors.New("Could not find tart")
 	}
