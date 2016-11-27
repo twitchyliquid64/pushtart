@@ -62,7 +62,7 @@ func proxyRequestViaNetwork(proxyEntry config.DomainProxy, w http.ResponseWriter
 
 	//see if request authorized
 	if !authorized(proxyEntry, w, r) {
-		w.Header().Set("WWW-Authenticate", `Basic realm="Authorization check required to access domain"`)
+		w.Header().Set("WWW-Authenticate", "Basic realm=\"Pushtart:"+config.All().Name+"\"")
 		w.WriteHeader(401)
 		w.Write([]byte("401 Unauthorized\n"))
 		return
