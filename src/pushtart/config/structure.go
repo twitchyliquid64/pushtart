@@ -13,8 +13,8 @@ type Config struct {
 		ForceRedirect bool //If set, all HTTPPROXY requests for apps must go over HTTPS. HTTP traffic is redirected.
 		Listener      string
 		Certs         []struct {
-			PrivateKey string
-			Cert       string
+			PrivateKey string //PEM format recommended.
+			Cert       string //PEM format required. You may need to contain the whole chain in the cert as well - to do this: cat mycert.pem CA.pem > cert_for_pushtart.pem
 		}
 	}
 
