@@ -111,7 +111,7 @@ func writeConfig() (err error) {
 	return nil
 }
 
-func loadTLS(keyPath, certPath string) (*tls.Config, error) {
+func loadTLS(conf *Config) (*tls.Config, error) {
 	tlsConfig := new(tls.Config)
 
 	tlsConfig.PreferServerCipherSuites = true
@@ -123,15 +123,16 @@ func loadTLS(keyPath, certPath string) (*tls.Config, error) {
 		tls.TLS_RSA_WITH_AES_128_CBC_SHA,
 		tls.TLS_RSA_WITH_3DES_EDE_CBC_SHA}
 
-	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
-	if err != nil {
-		logging.Error("config", "Error loading tls certificate and key files.")
-		logging.Error("config", err.Error())
-		return nil, err
+	for i, certPair := range conf.TLS.Certs {
+		cert, err := tls.LoadX509KeyPair(certPair.Cert, certPair.PrivateKey)
+		if err != nil {
+			logging.Error("config", "Error loading tls cert/key at index "+strconv.Itoa(i)+".")
+			logging.Error("config", err.Error())
+			return nil, err
+		}
+		tlsConfig.Certificates = append(tlsConfig.Certificates, cert)
 	}
 
-	tlsConfig.Certificates = []tls.Certificate{cert}
 	tlsConfig.BuildNameToCertificate()
-
 	return tlsConfig, nil
 }

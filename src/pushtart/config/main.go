@@ -19,10 +19,10 @@ func Load(fpath string) error {
 		return err
 	}
 
-	if gConfig.TLS.PrivateKey == "" {
+	if len(gConfig.TLS.Certs) == 0 {
 		//logging.Warning("config", "TLS keyfile paths omitted, skipping TLS setup")
 	} else {
-		tls, err := loadTLS(gConfig.TLS.PrivateKey, gConfig.TLS.Cert)
+		tls, err := loadTLS(gConfig)
 		if err == nil {
 			gTLS = tls
 		} else {

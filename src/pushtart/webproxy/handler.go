@@ -20,7 +20,7 @@ func main(w http.ResponseWriter, r *http.Request) {
 	if host == config.All().Web.DefaultDomain {
 		internalsRouter.ServeHTTP(w, r)
 	} else if isKnownVirtualDomain(host) {
-		if config.All().TLS.Enabled && r.TLS == nil {
+		if config.All().TLS.Enabled && r.TLS == nil && config.All().TLS.ForceRedirect {
 			redir(w, r)
 			return
 		}

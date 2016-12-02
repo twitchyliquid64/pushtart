@@ -9,10 +9,13 @@ type Config struct {
 	Path                string   `json:"-"` //path used to represent where the file is currently stored.
 	RunSentryInterval   int      //Seconds between executions of the runsentry.
 	TLS                 struct { //Relative file addresses of the .pem files needed for TLS.
-		Enabled    bool
-		Listener   string
-		PrivateKey string
-		Cert       string
+		Enabled       bool
+		ForceRedirect bool //If set, all HTTPPROXY requests for apps must go over HTTPS. HTTP traffic is redirected.
+		Listener      string
+		Certs         []struct {
+			PrivateKey string
+			Cert       string
+		}
 	}
 
 	Web struct { //Details needed to get the website part working.

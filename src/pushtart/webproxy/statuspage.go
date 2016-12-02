@@ -73,8 +73,8 @@ func statusPage(w http.ResponseWriter, r *http.Request) {
 		"timeformat": func(in uint64) string {
 			t := time.Millisecond * time.Duration(in)
 			s := strconv.Itoa(int(t.Hours())) + " hours, "
-			s += strconv.Itoa(int(t.Minutes()) % 60) + " minutes, "
-			s += strconv.Itoa(int(t.Seconds()) % 60) + " seconds."
+			s += strconv.Itoa(int(t.Minutes())%60) + " minutes, "
+			s += strconv.Itoa(int(t.Seconds())%60) + " seconds."
 			return s
 		},
 	}
@@ -181,14 +181,6 @@ var statusTemplate = `
                 <td>{{.Config.Web.DefaultDomain}}</td>
               </tr>
               <tr>
-                <td>TLS Enabled</td>
-                <td>{{boolcolour .Config.TLS.Enabled}}</td>
-              </tr>
-              <tr>
-                <td>TLS Listener</td>
-                <td>{{.Config.TLS.Listener}}</td>
-              </tr>
-              <tr>
                 <td>DNS Server Enabled</td>
                 <td>{{boolcolour .Config.DNS.Enabled}}</td>
               </tr>
@@ -213,6 +205,36 @@ var statusTemplate = `
         </td>
     	</tr>
 
+			<tr>
+    		<td>
+          <table class="main">
+            <thead>
+              <tr>
+                <th class="section-header">TLS</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>TLS Enabled</td>
+                <td>{{boolcolour .Config.TLS.Enabled}}</td>
+              </tr>
+              <tr>
+                <td>TLS Listener</td>
+                <td>{{.Config.TLS.Listener}}</td>
+              </tr>
+							<tr>
+								<td>Certificates loaded</td>
+								<td>{{len .Config.TLS.Certs}}</td>
+							</tr>
+							<tr>
+                <td>Redirect apps to HTTPS</td>
+                <td>{{boolcolour .Config.TLS.ForceRedirect}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+    	</tr>
 
       <tr>
         <td>
