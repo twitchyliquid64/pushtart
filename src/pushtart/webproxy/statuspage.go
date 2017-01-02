@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 	"pushtart/config"
 	"pushtart/dnsserv"
 	"pushtart/logging"
 	"pushtart/tartmanager"
+	"runtime"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/cloudfoundry/bytefmt"
@@ -25,6 +28,18 @@ type statusData struct {
 	Background string
 	CacheUsed  int
 	CacheUtil  int
+	Diskfree   uint64
+	Disktotal  uint64
+	NumCPUs    int
+	ProcMem    runtime.MemStats
+}
+
+func getDiskFreeAndTotal() (uint64, uint64) {
+	var stat syscall.Statfs_t
+	wd, _ := os.Getwd()
+	syscall.Statfs(wd, &stat)
+	// Available blocks * size per block = available space in bytes
+	return stat.Bavail * uint64(stat.Bsize), stat.Blocks * uint64(stat.Bsize)
 }
 
 func statusPage(w http.ResponseWriter, r *http.Request) {
@@ -83,6 +98,11 @@ func statusPage(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Template Error: " + err.Error()))
 		return
 	}
+
+	diskFree, diskTotal := getDiskFreeAndTotal()
+	var memStats runtime.MemStats
+	runtime.ReadMemStats(&memStats)
+
 	err = t.ExecuteTemplate(w, "status", statusData{
 		Name:       config.All().Name,
 		Config:     config.All(),
@@ -93,6 +113,10 @@ func statusPage(w http.ResponseWriter, r *http.Request) {
 		Background: statusColor,
 		CacheUsed:  dnsserv.GetCacheUsed(),
 		CacheUtil:  dnsserv.GetCacheUsed() * 100 / config.All().DNS.LookupCacheSize,
+		Diskfree:   diskFree,
+		Disktotal:  diskTotal,
+		NumCPUs:    runtime.NumCPU(),
+		ProcMem:    memStats,
 	})
 	if err != nil {
 		w.Write([]byte("Template Exec Error: " + err.Error()))
@@ -252,9 +276,12 @@ var statusTemplate = `
               </tr>
               <tr>
                 <td>Server Load</td>
-                <td>{{.Load.One}} -- {{.Load.Five}} -- {{.Load.Fifteen}}</td>
+                <td>
+									{{.Load.One}} -- {{.Load.Five}} -- {{.Load.Fifteen}}<br>
+									Num logical cores: {{.NumCPUs}}
+								</td>
               </tr>
-              <tr>
+							<tr>
                 <td>Server Memory</td>
                 <td>
                 Total:        {{bytesFormat .Mem.Total}}<br>
@@ -263,6 +290,24 @@ var statusTemplate = `
                 Actual Used:  {{bytesFormat .Mem.ActualUsed}}<br>
                 Actual Free:  {{bytesFormat .Mem.ActualFree}}<br>
                 </td>
+              </tr>
+							<tr>
+								<td>Disk</td>
+								<td>
+								Free:        {{bytesFormat .Diskfree}} ({{percent .Diskfree .Disktotal}}%)<br>
+								Total:        {{bytesFormat .Disktotal}}
+								</td>
+							</tr>
+							<tr>
+                <td>Process Memory</td>
+                <td>
+									Allocated: {{bytesFormat .ProcMem.Alloc}}<br>
+									Reserved from system: {{bytesFormat .ProcMem.Sys}}<br>
+									<br>
+									Num Objects: {{.ProcMem.HeapObjects}}<br>
+									GC Fraction: {{.ProcMem.GCCPUFraction}}<br>
+									Num GC Runs: {{.ProcMem.NumGC}}<br>
+								</td>
               </tr>
             </tbody>
           </table>

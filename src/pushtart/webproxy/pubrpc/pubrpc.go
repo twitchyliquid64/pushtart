@@ -2,11 +2,21 @@ package pubrpc
 
 import (
 	"errors"
+	"os"
 	"pushtart/config"
 	"pushtart/dnsserv"
+	"syscall"
 
 	sigar "github.com/cloudfoundry/gosigar"
 )
+
+func getDiskFreeAndTotal() (uint64, uint64) {
+	var stat syscall.Statfs_t
+	wd, _ := os.Getwd()
+	syscall.Statfs(wd, &stat)
+	// Available blocks * size per block = available space in bytes
+	return stat.Bavail * uint64(stat.Bsize), stat.Blocks * uint64(stat.Bsize)
+}
 
 //SysStatsArgs represents the arguments passed to SysStats RPC.
 type SysStatsArgs struct {
@@ -20,6 +30,8 @@ type SysStatsResult struct {
 	Uptime    sigar.Uptime
 	Mem       sigar.Mem
 	Swap      sigar.Swap
+	DiskFree  uint64
+	DiskTotal uint64
 	CacheUsed int
 }
 
@@ -35,6 +47,7 @@ func (t *RPCService) SysStats(args int, result *SysStatsResult) error {
 	result.Uptime.Get()
 	result.Name = config.All().Name
 	result.CacheUsed = dnsserv.GetCacheUsed()
+	result.DiskFree, result.DiskTotal = getDiskFreeAndTotal()
 
 	avg, err := concreteSigar.GetLoadAverage()
 	if err != nil {
