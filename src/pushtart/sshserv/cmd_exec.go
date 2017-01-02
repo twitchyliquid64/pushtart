@@ -60,6 +60,15 @@ func execCmd(conn *ssh.ServerConn, channel ssh.Channel, payload []byte) {
 		}
 
 		sendExitStatus(channel, 0)
+	} else if strings.HasPrefix(cmdStr, "git-upload-pack") {
+		cmd := exec.Command("git-upload-pack", getPath(cmdStr))
+		err := runCommandAcrossSSHChannel(cmd, channel)
+		if err != nil {
+			logging.Error("sshserv-exec", "runCommandAcrossSSHChannel() returned error: "+err.Error())
+			sendExitStatus(channel, 1)
+			return
+		}
+		sendExitStatus(channel, 0)
 	} else if strings.HasPrefix(cmdStr, "import-ssh-key ") {
 		runImportSSHKey(channel, conn, cmdStr)
 	} else if cmdStr == "logs" {
