@@ -59,8 +59,14 @@ extension --extension HTTPProxy --operation remove-authorization-rule --domain t
 
 If you enable HTTPProxy, you can access a few additional management pages. There are:
 
-http(s)://<default-domain>:<http-port>/health - Returns 'Ok' if the server is healthy
+http(s)://&lt;default-domain&gt;:&lt;http-port&gt;/health - Returns 'Ok' if the server is healthy
 
-http(s)://<default-domain>:<http-port>/status - Displays a summary of non-sensitive configuration.
+http(s)://&lt;default-domain&gt;:&lt;http-port&gt;/status - Displays a summary of non-sensitive configuration.
 
-More will be added in future, including pages which require authentication.
+## JSON-RPC
+
+When HTTPProxy is enabled, a JSON-RPC becomes available on /rpc (authenticated) or /pubrpc (unauthenticated proceedures). See [here](https://github.com/twitchyliquid64/pushtart/blob/master/src/pushtart/webproxy/rpc/main.go) for authenticated methods, and [here](https://github.com/twitchyliquid64/pushtart/blob/master/src/pushtart/webproxy/pubrpc/pubrpc.go) for unauthenticated methods.
+
+### Authentication
+
+For authenticated methods, you need to pass a parameter `APIKey` set to a services API key. To create an api key, run this in pushtart: `generate-api-key --service <service-name>`, where `service-name` is any human-readable string which represents the service consuming the API.
