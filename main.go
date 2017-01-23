@@ -80,7 +80,7 @@ func main() {
 			signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 			<-c
 			fmt.Println("")
-			logging.Info("main", "Recieved Interrupt, shutting down")
+			logging.Info("main", "Received Interrupt, shutting down")
 
 		case "make-config":
 			generateConfig(params["config"])

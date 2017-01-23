@@ -13,7 +13,7 @@ import (
 var errAuthDenied = errors.New("Authentication denied")
 
 func passwordCheck(c ssh.ConnMetadata, pass []byte) (*ssh.Permissions, error) {
-	logging.Info("sshserv-auth", "Recieved authentication request for "+c.User()+" (Password)")
+	logging.Info("sshserv-auth", "Received authentication request for "+c.User()+" (Password)")
 
 	// Should use constant-time compare (or better, salt+hash) in
 	// a production setting.
@@ -24,7 +24,7 @@ func passwordCheck(c ssh.ConnMetadata, pass []byte) (*ssh.Permissions, error) {
 }
 
 func publicKeyCheck(conn ssh.ConnMetadata, pubKey ssh.PublicKey) (*ssh.Permissions, error) {
-	logging.Info("sshserv-auth", "Recieved authentication request for "+conn.User()+" (PublicKey)")
+	logging.Info("sshserv-auth", "Received authentication request for "+conn.User()+" (PublicKey)")
 
 	pubKeyRaw := user.GetUserPubkey(conn.User())
 	if pubKeyRaw == "" {

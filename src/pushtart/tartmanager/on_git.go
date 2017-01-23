@@ -69,7 +69,7 @@ func checkCreateRepo(pushURL, owner string) error {
 	return nil
 }
 
-// PreGitRecieve is called by the sshserv package when a git push is recieved. It initializes a new repository if one does not already
+// PreGitRecieve is called by the sshserv package when a git push is received. It initializes a new repository if one does not already
 // exist.
 func PreGitRecieve(pushURL, owner string) error {
 	return checkCreateRepo(pushURL, owner)

@@ -26,7 +26,7 @@ func main(w http.ResponseWriter, r *http.Request) {
 		}
 		proxyRequestViaNetwork(config.All().Web.DomainProxies[host], w, r)
 	} else {
-		logging.Warning("httpproxy-main", "Request recieved for unknown virtual domain: "+host)
+		logging.Warning("httpproxy-main", "Request received for unknown virtual domain: "+host)
 		internalsRouter.ServeHTTP(w, r)
 	}
 }
