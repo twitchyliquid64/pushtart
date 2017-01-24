@@ -50,7 +50,7 @@ type Config struct {
 	Tarts map[string]Tart
 }
 
-//DomainProxy represents a reverse proxy for requests recieved on a specific domain, to a specific host/port.
+//DomainProxy represents a reverse proxy for requests received on a specific domain, to a specific host/port.
 type DomainProxy struct {
 	TargetHost   string
 	TargetPort   int

@@ -33,7 +33,7 @@ func getRecordIfSpecifiedAAAA(domain string) ([]dns.RR, error) {
 }
 
 func getRecord(q dns.Question) (rr []dns.RR, err error) {
-	logging.Info("dnsserv-main", "Recieved query for "+q.Name)
+	logging.Info("dnsserv-main", "Received query for "+q.Name)
 	switch q.Qtype {
 	case dns.TypeA:
 		rr, err = getRecordIfSpecifiedA(q.Name)
